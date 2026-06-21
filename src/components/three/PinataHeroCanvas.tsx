@@ -4,16 +4,22 @@ import { useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-const FRINGE_COLORS = ["#e7b740", "#f6d678", "#ffcc00"];
+const FRINGE_COLORS = ["#b5472b", "#e7b740", "#e3d3b6", "#f6d678"];
 const CONFETTI_COLORS = [
+  "#b5472b",
   "#e7b740",
   "#f6d678",
-  "#d11f2c",
+  "#e3d3b6",
   "#1f8a4c",
   "#2459c7",
   "#f3a0c2",
 ];
-const BODY_RADIUS = 1.3;
+const LED_COLORS = ["#ff5b5b", "#ffcc00", "#4ddd6a", "#4da6ff", "#caa6ff"];
+const CANDY_COLORS = ["#ff3b3b", "#ffd23f", "#3fa9f5", "#7ed957", "#ff7fb7", "#ff9f1c"];
+const CANDY_COUNT = 55;
+const DRUM_RADIUS = 1.05;
+const DRUM_HALF_HEIGHT = 1;
+const LEDS_PER_RIM = 16;
 const RING_COUNT = 5;
 const STRIPS_PER_RING = 14;
 const CONFETTI_COUNT = 70;
@@ -49,12 +55,10 @@ function FringeRings({ progress }: { progress: { current: number } }) {
   const strips = useMemo<StripDatum[]>(() => {
     const rings: RingDatum[] = Array.from({ length: RING_COUNT }).map(
       (_, i) => {
-        const y = 0.95 - (i / (RING_COUNT - 1)) * 1.9;
+        const y = DRUM_HALF_HEIGHT * 0.9 - (i / (RING_COUNT - 1)) * DRUM_HALF_HEIGHT * 1.8;
         return {
           y,
-          ringRadius: Math.sqrt(
-            Math.max(0.05, BODY_RADIUS * BODY_RADIUS - y * y)
-          ),
+          ringRadius: DRUM_RADIUS + 0.05,
           color: FRINGE_COLORS[i % FRINGE_COLORS.length],
           unravelAt: i / RING_COUNT,
         };
@@ -108,6 +112,70 @@ function FringeRings({ progress }: { progress: { current: number } }) {
             color={strip.ring.color}
             transparent
             roughness={0.7}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+interface LedDatum {
+  angle: number;
+  y: number;
+  color: string;
+  phase: number;
+}
+
+function RimLights({ progress }: { progress: { current: number } }) {
+  const leds = useMemo<LedDatum[]>(() => {
+    const rims = [DRUM_HALF_HEIGHT, -DRUM_HALF_HEIGHT];
+    return rims.flatMap((y, rimIndex) =>
+      Array.from({ length: LEDS_PER_RIM }).map((_, j) => {
+        const seed = rimIndex * LEDS_PER_RIM + j;
+        return {
+          angle: (j / LEDS_PER_RIM) * Math.PI * 2,
+          y,
+          color: LED_COLORS[j % LED_COLORS.length],
+          phase: seededRandom(seed + 0.19) * Math.PI * 2,
+        };
+      })
+    );
+  }, []);
+
+  const refs = useRef<(THREE.Mesh | null)[]>([]);
+
+  useFrame((state) => {
+    const p = progress.current;
+    const t = state.clock.elapsedTime;
+    const fade = 1 - smoothstep(0.8, 1, p);
+    leds.forEach((led, i) => {
+      const mesh = refs.current[i];
+      if (!mesh) return;
+      const pulse = 0.6 + 0.4 * Math.sin(t * 3 + led.phase);
+      const material = mesh.material as THREE.MeshStandardMaterial;
+      material.opacity = fade;
+      material.emissiveIntensity = pulse * fade * 1.4;
+    });
+  });
+
+  return (
+    <group>
+      {leds.map((led, i) => (
+        <mesh
+          key={i}
+          ref={(el) => (refs.current[i] = el)}
+          position={[
+            Math.sin(led.angle) * (DRUM_RADIUS + 0.04),
+            led.y,
+            Math.cos(led.angle) * (DRUM_RADIUS + 0.04),
+          ]}
+        >
+          <sphereGeometry args={[0.035, 8, 8]} />
+          <meshStandardMaterial
+            color={led.color}
+            emissive={led.color}
+            emissiveIntensity={1}
+            transparent
           />
         </mesh>
       ))}
@@ -180,6 +248,70 @@ function ConfettiBurst({ progress }: { progress: { current: number } }) {
   );
 }
 
+interface CandyDatum {
+  angle: number;
+  outRadius: number;
+  fireAt: number;
+  fallSpeed: number;
+  color: string;
+  spin: number;
+  scale: number;
+}
+
+function CandySpill({ progress }: { progress: { current: number } }) {
+  const pieces = useMemo<CandyDatum[]>(
+    () =>
+      Array.from({ length: CANDY_COUNT }).map((_, i) => ({
+        angle: seededRandom(i + 0.21) * Math.PI * 2,
+        outRadius: 0.15 + seededRandom(i + 0.77) * 0.95,
+        fireAt: 0.2 + seededRandom(i + 0.44) * 0.6,
+        fallSpeed: 1.3 + seededRandom(i + 0.61) * 1.7,
+        color:
+          CANDY_COLORS[Math.floor(seededRandom(i + 0.33) * CANDY_COLORS.length)],
+        spin: (seededRandom(i + 0.88) - 0.5) * 8,
+        scale: 0.55 + seededRandom(i + 0.5) * 0.55,
+      })),
+    []
+  );
+
+  const refs = useRef<(THREE.Mesh | null)[]>([]);
+
+  useFrame(() => {
+    const p = progress.current;
+    pieces.forEach((piece, i) => {
+      const mesh = refs.current[i];
+      if (!mesh) return;
+      const localT = smoothstep(piece.fireAt, Math.min(1, piece.fireAt + 0.4), p);
+      const spread = localT * piece.outRadius;
+      const fall = localT * localT * piece.fallSpeed * 3.4;
+      mesh.position.set(
+        Math.sin(piece.angle) * spread,
+        DRUM_HALF_HEIGHT * 0.4 - fall,
+        Math.cos(piece.angle) * spread
+      );
+      mesh.rotation.x = fall * piece.spin;
+      mesh.rotation.z = fall * piece.spin * 0.7;
+      const material = mesh.material as THREE.MeshStandardMaterial;
+      material.opacity = localT <= 0 ? 0 : 1 - smoothstep(0.85, 1, localT);
+    });
+  });
+
+  return (
+    <group>
+      {pieces.map((piece, i) => (
+        <mesh
+          key={i}
+          ref={(el) => (refs.current[i] = el)}
+          scale={piece.scale}
+        >
+          <sphereGeometry args={[0.08, 10, 10]} />
+          <meshStandardMaterial color={piece.color} transparent roughness={0.4} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 function PinataBody({ progress }: { progress: { current: number } }) {
   const group = useRef<THREE.Group>(null);
 
@@ -192,12 +324,19 @@ function PinataBody({ progress }: { progress: { current: number } }) {
 
   return (
     <group ref={group}>
+      {/* Wooden dowel running through the drum, like the real spin handle */}
       <mesh>
-        <icosahedronGeometry args={[BODY_RADIUS, 1]} />
-        <meshStandardMaterial color="#3a0a5e" flatShading roughness={0.55} />
+        <cylinderGeometry args={[0.045, 0.045, DRUM_HALF_HEIGHT * 2 + 1.6, 12]} />
+        <meshStandardMaterial color="#c9974c" roughness={0.85} />
       </mesh>
+      <mesh>
+        <cylinderGeometry args={[DRUM_RADIUS, DRUM_RADIUS, DRUM_HALF_HEIGHT * 2, 32]} />
+        <meshStandardMaterial color="#f3e8d6" roughness={0.85} />
+      </mesh>
+      <RimLights progress={progress} />
       <FringeRings progress={progress} />
       <ConfettiBurst progress={progress} />
+      <CandySpill progress={progress} />
     </group>
   );
 }
