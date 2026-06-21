@@ -4,25 +4,25 @@ import { useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-const FRINGE_COLORS = ["#b5472b", "#e7b740", "#e3d3b6", "#f6d678"];
-const CONFETTI_COLORS = [
-  "#b5472b",
-  "#e7b740",
-  "#f6d678",
-  "#e3d3b6",
-  "#1f8a4c",
-  "#2459c7",
-  "#f3a0c2",
-];
+const WOOD_COLOR = "#c9974c";
+const ROPE_COLOR = "#e3d3b6";
+const RIBBON_COLORS = ["#e7b740", "#ff4fa3", "#7ec8e3"];
 const LED_COLORS = ["#ff5b5b", "#ffcc00", "#4ddd6a", "#4da6ff", "#caa6ff"];
+const CONFETTI_COLORS = ["#b5472b", "#e7b740", "#f6d678", "#1f8a4c", "#2459c7", "#f3a0c2"];
 const CANDY_COLORS = ["#ff3b3b", "#ffd23f", "#3fa9f5", "#7ed957", "#ff7fb7", "#ff9f1c"];
-const CANDY_COUNT = 55;
-const DRUM_RADIUS = 1.05;
-const DRUM_HALF_HEIGHT = 1;
-const LEDS_PER_RIM = 16;
-const RING_COUNT = 5;
-const STRIPS_PER_RING = 14;
-const CONFETTI_COUNT = 70;
+
+const CAGE_RADIUS = 0.78;
+const CAGE_HALF_HEIGHT = 1.85;
+const PLATFORM_RADIUS = CAGE_RADIUS * 0.92;
+const PLATFORM_THICKNESS = 0.12;
+const DOWEL_RADIUS = 0.055;
+const DOWEL_COUNT = 4;
+
+const BAND_COUNT = 16;
+const LED_RING_COUNT = 5;
+const LEDS_PER_RING = 10;
+const CONFETTI_COUNT = 40;
+const CANDY_COUNT = 70;
 
 function smoothstep(edge0: number, edge1: number, x: number) {
   const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
@@ -36,47 +36,72 @@ function seededRandom(seed: number) {
   return x - Math.floor(x);
 }
 
-interface RingDatum {
-  y: number;
-  ringRadius: number;
-  color: string;
-  unravelAt: number;
+// The wooden lantern cage (platforms + corner dowels) the ribbon is wound
+// around. It's always present — the ribbon bands simply hide it until they
+// unravel away.
+function CageFrame() {
+  const platformYs = [CAGE_HALF_HEIGHT, 0, -CAGE_HALF_HEIGHT];
+  const dowelAngles = Array.from(
+    { length: DOWEL_COUNT },
+    (_, i) => (i / DOWEL_COUNT) * Math.PI * 2 + Math.PI / 4
+  );
+
+  return (
+    <group>
+      {platformYs.map((y, i) => (
+        <mesh key={i} position={[0, y, 0]}>
+          <cylinderGeometry args={[PLATFORM_RADIUS, PLATFORM_RADIUS, PLATFORM_THICKNESS, 24]} />
+          <meshStandardMaterial color={WOOD_COLOR} roughness={0.85} />
+        </mesh>
+      ))}
+      {dowelAngles.map((angle, i) => (
+        <mesh
+          key={i}
+          position={[
+            Math.sin(angle) * (CAGE_RADIUS - 0.07),
+            0,
+            Math.cos(angle) * (CAGE_RADIUS - 0.07),
+          ]}
+        >
+          <cylinderGeometry
+            args={[DOWEL_RADIUS, DOWEL_RADIUS, CAGE_HALF_HEIGHT * 2 + PLATFORM_THICKNESS, 12]}
+          />
+          <meshStandardMaterial color={WOOD_COLOR} roughness={0.85} />
+        </mesh>
+      ))}
+      <mesh position={[0, CAGE_HALF_HEIGHT + 0.9, 0]}>
+        <cylinderGeometry args={[0.025, 0.025, 1.8, 8]} />
+        <meshStandardMaterial color={ROPE_COLOR} roughness={0.9} />
+      </mesh>
+    </group>
+  );
 }
 
-interface StripDatum {
-  angle: number;
-  ring: RingDatum;
+interface BandDatum {
+  y: number;
+  height: number;
+  color: string;
+  unravelAt: number;
   fallDistance: number;
   spin: number;
   drift: number;
 }
 
-function FringeRings({ progress }: { progress: { current: number } }) {
-  const strips = useMemo<StripDatum[]>(() => {
-    const rings: RingDatum[] = Array.from({ length: RING_COUNT }).map(
-      (_, i) => {
-        const y = DRUM_HALF_HEIGHT * 0.9 - (i / (RING_COUNT - 1)) * DRUM_HALF_HEIGHT * 1.8;
-        return {
-          y,
-          ringRadius: DRUM_RADIUS + 0.05,
-          color: FRINGE_COLORS[i % FRINGE_COLORS.length],
-          unravelAt: i / RING_COUNT,
-        };
-      }
-    );
-
-    return rings.flatMap((ring, ringIndex) =>
-      Array.from({ length: STRIPS_PER_RING }).map((_, j) => {
-        const seed = ringIndex * STRIPS_PER_RING + j;
-        return {
-          angle: (j / STRIPS_PER_RING) * Math.PI * 2,
-          ring,
-          fallDistance: 2.2 + seededRandom(seed) * 1.4,
-          spin: (seededRandom(seed + 0.37) - 0.5) * 6,
-          drift: 0.6 + seededRandom(seed + 0.71) * 0.8,
-        };
-      })
-    );
+// The continuous wound ribbon, modelled as stacked open-ended cylinder
+// shells that peel off bottom-to-top as the ribbon is "pulled".
+function RibbonBands({ progress }: { progress: { current: number } }) {
+  const bands = useMemo<BandDatum[]>(() => {
+    const totalHeight = CAGE_HALF_HEIGHT * 2 - PLATFORM_THICKNESS * 2;
+    const bandHeight = totalHeight / BAND_COUNT;
+    return Array.from({ length: BAND_COUNT }).map((_, i) => ({
+      y: CAGE_HALF_HEIGHT - PLATFORM_THICKNESS - bandHeight * (i + 0.5),
+      height: bandHeight * 0.96,
+      color: RIBBON_COLORS[i % RIBBON_COLORS.length],
+      unravelAt: i / BAND_COUNT,
+      fallDistance: 1.6 + seededRandom(i + 0.12) * 1.2,
+      spin: (seededRandom(i + 0.46) - 0.5) * 7,
+      drift: 0.5 + seededRandom(i + 0.63) * 0.9,
+    }));
   }, []);
 
   const refs = useRef<(THREE.Mesh | null)[]>([]);
@@ -84,38 +109,71 @@ function FringeRings({ progress }: { progress: { current: number } }) {
   useFrame((state) => {
     const p = progress.current;
     const t = state.clock.elapsedTime;
-    strips.forEach((strip, i) => {
+    bands.forEach((band, i) => {
       const mesh = refs.current[i];
       if (!mesh) return;
-      const localT = smoothstep(strip.ring.unravelAt, strip.ring.unravelAt + 1 / RING_COUNT, p);
+      const localT = smoothstep(band.unravelAt, band.unravelAt + 1 / BAND_COUNT, p);
 
-      const outward = strip.ring.ringRadius + 0.05 + localT * strip.drift;
-      const x = Math.sin(strip.angle) * outward;
-      const z = Math.cos(strip.angle) * outward;
-      const sway = Math.sin(t * 1.5 + strip.angle) * 0.03 * (1 - localT);
-      mesh.position.set(x + sway, strip.ring.y - localT * localT * strip.fallDistance, z);
-      mesh.rotation.y = strip.angle;
-      mesh.rotation.x = localT * strip.spin;
-      mesh.rotation.z = localT * strip.spin * 0.6;
+      const outward = localT * band.drift;
+      mesh.position.set(
+        Math.sin(t * 0.6 + i) * outward * 0.3,
+        band.y - localT * localT * band.fallDistance,
+        Math.cos(t * 0.6 + i) * outward * 0.3
+      );
+      mesh.rotation.x = localT * band.spin;
+      mesh.rotation.z = localT * band.spin * 0.5;
+      mesh.scale.setScalar(1 - 0.25 * localT);
 
       const material = mesh.material as THREE.MeshStandardMaterial;
-      material.opacity = 1 - smoothstep(0.7, 1, localT);
+      material.opacity = 1 - smoothstep(0.75, 1, localT);
     });
   });
 
   return (
     <group>
-      {strips.map((strip, i) => (
-        <mesh key={i} ref={(el) => (refs.current[i] = el)}>
-          <boxGeometry args={[0.22, 0.5, 0.035]} />
+      {bands.map((band, i) => (
+        <mesh key={i} ref={(el) => (refs.current[i] = el)} position={[0, band.y, 0]}>
+          <cylinderGeometry args={[CAGE_RADIUS + 0.03, CAGE_RADIUS + 0.03, band.height, 32, 1, true]} />
           <meshStandardMaterial
-            color={strip.ring.color}
+            color={band.color}
             transparent
-            roughness={0.7}
+            roughness={0.3}
+            metalness={0.1}
+            side={THREE.DoubleSide}
           />
         </mesh>
       ))}
     </group>
+  );
+}
+
+// The loose ribbon tail hanging from the bottom that "grows" as it's pulled,
+// then gets used up once the cage is fully unwound.
+function PullTail({ progress }: { progress: { current: number } }) {
+  const mesh = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (!mesh.current) return;
+    const p = progress.current;
+    const t = state.clock.elapsedTime;
+    const grow = smoothstep(0, 0.45, p) * (1 - smoothstep(0.85, 1, p));
+    const length = 0.3 + grow * 2.4;
+    mesh.current.scale.set(1, length, 1);
+    mesh.current.position.set(
+      Math.sin(t * 1.2) * 0.05,
+      -CAGE_HALF_HEIGHT - length / 2,
+      CAGE_RADIUS * 0.6
+    );
+    mesh.current.rotation.z = Math.sin(t * 1.2) * 0.08;
+    const material = mesh.current.material as THREE.MeshStandardMaterial;
+    material.opacity = grow;
+  });
+
+  return (
+    <mesh ref={mesh}>
+      <boxGeometry args={[0.16, 1, 0.02]} />
+      <meshStandardMaterial color={RIBBON_COLORS[0]} transparent roughness={0.3} />
+    </mesh>
   );
 }
 
@@ -126,16 +184,20 @@ interface LedDatum {
   phase: number;
 }
 
-function RimLights({ progress }: { progress: { current: number } }) {
+// Mini glowing LED points woven through the ribbon at several heights.
+function GlowLights({ progress }: { progress: { current: number } }) {
   const leds = useMemo<LedDatum[]>(() => {
-    const rims = [DRUM_HALF_HEIGHT, -DRUM_HALF_HEIGHT];
-    return rims.flatMap((y, rimIndex) =>
-      Array.from({ length: LEDS_PER_RIM }).map((_, j) => {
-        const seed = rimIndex * LEDS_PER_RIM + j;
+    const ringYs = Array.from(
+      { length: LED_RING_COUNT },
+      (_, i) => CAGE_HALF_HEIGHT * 0.85 - (i / (LED_RING_COUNT - 1)) * CAGE_HALF_HEIGHT * 1.7
+    );
+    return ringYs.flatMap((y, ringIndex) =>
+      Array.from({ length: LEDS_PER_RING }).map((_, j) => {
+        const seed = ringIndex * LEDS_PER_RING + j;
         return {
-          angle: (j / LEDS_PER_RIM) * Math.PI * 2,
+          angle: (j / LEDS_PER_RING) * Math.PI * 2 + ringIndex * 0.3,
           y,
-          color: LED_COLORS[j % LED_COLORS.length],
+          color: LED_COLORS[seed % LED_COLORS.length],
           phase: seededRandom(seed + 0.19) * Math.PI * 2,
         };
       })
@@ -147,7 +209,7 @@ function RimLights({ progress }: { progress: { current: number } }) {
   useFrame((state) => {
     const p = progress.current;
     const t = state.clock.elapsedTime;
-    const fade = 1 - smoothstep(0.8, 1, p);
+    const fade = 1 - smoothstep(0.85, 1, p);
     leds.forEach((led, i) => {
       const mesh = refs.current[i];
       if (!mesh) return;
@@ -165,12 +227,12 @@ function RimLights({ progress }: { progress: { current: number } }) {
           key={i}
           ref={(el) => (refs.current[i] = el)}
           position={[
-            Math.sin(led.angle) * (DRUM_RADIUS + 0.04),
+            Math.sin(led.angle) * (CAGE_RADIUS + 0.05),
             led.y,
-            Math.cos(led.angle) * (DRUM_RADIUS + 0.04),
+            Math.cos(led.angle) * (CAGE_RADIUS + 0.05),
           ]}
         >
-          <sphereGeometry args={[0.035, 8, 8]} />
+          <sphereGeometry args={[0.032, 8, 8]} />
           <meshStandardMaterial
             color={led.color}
             emissive={led.color}
@@ -258,13 +320,15 @@ interface CandyDatum {
   scale: number;
 }
 
+// Candy raining out 360° once the ribbon wall has opened enough to let it
+// escape, like the real dispenser mechanic.
 function CandySpill({ progress }: { progress: { current: number } }) {
   const pieces = useMemo<CandyDatum[]>(
     () =>
       Array.from({ length: CANDY_COUNT }).map((_, i) => ({
         angle: seededRandom(i + 0.21) * Math.PI * 2,
-        outRadius: 0.15 + seededRandom(i + 0.77) * 0.95,
-        fireAt: 0.2 + seededRandom(i + 0.44) * 0.6,
+        outRadius: 0.12 + seededRandom(i + 0.77) * 0.85,
+        fireAt: 0.3 + seededRandom(i + 0.44) * 0.6,
         fallSpeed: 1.3 + seededRandom(i + 0.61) * 1.7,
         color:
           CANDY_COLORS[Math.floor(seededRandom(i + 0.33) * CANDY_COLORS.length)],
@@ -286,7 +350,7 @@ function CandySpill({ progress }: { progress: { current: number } }) {
       const fall = localT * localT * piece.fallSpeed * 3.4;
       mesh.position.set(
         Math.sin(piece.angle) * spread,
-        DRUM_HALF_HEIGHT * 0.4 - fall,
+        -CAGE_HALF_HEIGHT * 0.15 - fall,
         Math.cos(piece.angle) * spread
       );
       mesh.rotation.x = fall * piece.spin;
@@ -319,22 +383,15 @@ function PinataBody({ progress }: { progress: { current: number } }) {
     if (!group.current) return;
     const p = progress.current;
     group.current.rotation.y = state.clock.elapsedTime * 0.15 + p * Math.PI * 1.4;
-    group.current.position.y = Math.sin(state.clock.elapsedTime * 0.6) * 0.08 - p * 0.4;
+    group.current.position.y = Math.sin(state.clock.elapsedTime * 0.6) * 0.08 - p * 0.5;
   });
 
   return (
     <group ref={group}>
-      {/* Wooden dowel running through the drum, like the real spin handle */}
-      <mesh>
-        <cylinderGeometry args={[0.045, 0.045, DRUM_HALF_HEIGHT * 2 + 1.6, 12]} />
-        <meshStandardMaterial color="#c9974c" roughness={0.85} />
-      </mesh>
-      <mesh>
-        <cylinderGeometry args={[DRUM_RADIUS, DRUM_RADIUS, DRUM_HALF_HEIGHT * 2, 32]} />
-        <meshStandardMaterial color="#f3e8d6" roughness={0.85} />
-      </mesh>
-      <RimLights progress={progress} />
-      <FringeRings progress={progress} />
+      <CageFrame />
+      <GlowLights progress={progress} />
+      <RibbonBands progress={progress} />
+      <PullTail progress={progress} />
       <ConfettiBurst progress={progress} />
       <CandySpill progress={progress} />
     </group>
@@ -348,11 +405,11 @@ export default function PinataHeroCanvas({
 }) {
   return (
     <Canvas
-      camera={{ position: [0, 0.2, 5.6], fov: 42 }}
+      camera={{ position: [0, 0.1, 6.6], fov: 45 }}
       dpr={[1, 1.75]}
       gl={{ alpha: true, antialias: true }}
     >
-      <ambientLight intensity={0.65} />
+      <ambientLight intensity={0.6} />
       <directionalLight position={[3, 5, 4]} intensity={1.3} />
       <pointLight position={[-3, -2, 3]} intensity={0.5} color="#e7b740" />
       <PinataBody progress={progress} />
