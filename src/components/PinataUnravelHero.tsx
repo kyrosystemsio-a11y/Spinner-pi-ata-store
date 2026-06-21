@@ -79,14 +79,18 @@ export default function PinataUnravelHero() {
           </div>
         </div>
 
-        <div className="caution-stripe relative z-10 flex h-12 items-center overflow-hidden">
-          <div className="animate-marquee flex shrink-0 gap-8 whitespace-nowrap px-4 text-sm font-bold uppercase tracking-widest text-[var(--color-ink)]">
-            {Array.from({ length: 3 }).flatMap((_, set) =>
-              MARQUEE_ITEMS.map((item, i) => (
-                <span key={`${set}-${i}`}>{item} •</span>
-              ))
-            )}
+        <div className="relative z-10">
+          <div className="gold-divider w-full" />
+          <div className="flex h-12 items-center overflow-hidden bg-[var(--color-midway-deep)]">
+            <div className="animate-marquee flex shrink-0 gap-8 whitespace-nowrap px-4 text-sm font-semibold uppercase tracking-widest text-[var(--color-gold-bright)]">
+              {Array.from({ length: 3 }).flatMap((_, set) =>
+                MARQUEE_ITEMS.map((item, i) => (
+                  <span key={`${set}-${i}`}>{item} •</span>
+                ))
+              )}
+            </div>
           </div>
+          <div className="gold-divider w-full" />
         </div>
       </div>
     </section>

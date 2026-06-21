@@ -6,7 +6,6 @@
   --color-midway-light: #6d2f9e;
   --color-gold: #e7b740;
   --color-gold-bright: #f6d678;
-  --color-caution: #ffcc00;
   --color-ink: #18101f;
   --color-kraft: #f3e8d6;
   --color-kraft-dark: #e3d3b6;
@@ -102,11 +101,15 @@ h1, h2, h3, .font-display {
   background: radial-gradient(120% 140% at 50% -10%, var(--color-midway-light) 0%, var(--color-midway) 45%, var(--color-midway-deep) 100%);
 }
 
-.caution-stripe {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    var(--color-caution) 0 18px,
-    var(--color-ink) 18px 36px
+.gold-divider {
+  height: 2px;
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-gold) 25%,
+    var(--color-gold-bright) 50%,
+    var(--color-gold) 75%,
+    transparent
   );
 }
 

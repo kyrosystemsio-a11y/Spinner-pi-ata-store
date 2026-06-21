@@ -19,7 +19,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-30 bg-midway-gradient text-white shadow-md">
-      <div className="caution-stripe h-1.5 w-full" />
+      <div className="gold-divider w-full" />
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
         <Link
           href="/"

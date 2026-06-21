@@ -270,14 +270,15 @@ export default function Home() {
       )}
 
       {/* Closer */}
-      <section className="caution-stripe">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-14 text-center sm:px-6">
-          <h2 className="font-display text-2xl text-[var(--color-ink)] sm:text-3xl">
+      <section className="bg-midway-gradient text-white">
+        <div className="gold-divider w-full" />
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-16 text-center sm:px-6">
+          <h2 className="font-display text-2xl sm:text-3xl">
             Ready to Spin Up Your Next Party?
           </h2>
           <Link
             href="/shop"
-            className="cursor-pointer rounded-full bg-[var(--color-ink)] px-7 py-4 font-bold text-white transition-colors hover:bg-[var(--color-midway-deep)]"
+            className="cursor-pointer rounded-full bg-[var(--color-gold)] px-7 py-4 font-bold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-gold-bright)]"
           >
             Shop All Piñatas
           </Link>

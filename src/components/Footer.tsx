@@ -13,7 +13,7 @@ const FOOTER_LINKS = [
 export default function Footer() {
   return (
     <footer className="bg-[var(--color-midway-deep)] text-white">
-      <div className="caution-stripe h-1.5 w-full" />
+      <div className="gold-divider w-full" />
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 md:flex-row md:justify-between">
         <div className="max-w-sm">
           <p className="font-display text-xl text-[var(--color-gold-bright)]">
