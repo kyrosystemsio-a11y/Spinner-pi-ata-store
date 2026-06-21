@@ -22,27 +22,65 @@ export default function Home() {
       {/* Hero */}
       <PinataUnravelHero />
 
-      {/* Halloween seasonal block */}
-      <section className="bg-[var(--color-ink)] text-white">
+      {/* Baptism feature */}
+      {baptism && (
+        <section className="bg-[var(--color-kraft)]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+            <div className="grid items-center gap-10 rounded-3xl bg-white p-6 shadow-sm sm:p-10 md:grid-cols-2">
+              <div className="relative aspect-square overflow-hidden rounded-2xl md:order-2">
+                {baptism.image && (
+                  <Image
+                    src={baptism.image}
+                    alt={baptism.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                )}
+              </div>
+              <div className="md:order-1">
+                <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-rope)]">
+                  Made for the Occasion
+                </span>
+                <h2 className="mt-2 font-display text-3xl text-[var(--color-midway)] sm:text-4xl">
+                  {baptism.name.replace(/\s*\(.*\)/, "")}
+                </h2>
+                <p className="mt-4 max-w-md leading-relaxed text-black/75">
+                  {baptism.description}
+                </p>
+                <Link
+                  href={`/shop/${baptism.slug}`}
+                  className="mt-6 inline-block cursor-pointer rounded-full bg-[var(--color-midway)] px-7 py-4 font-bold text-white transition-colors hover:bg-[var(--color-midway-light)]"
+                >
+                  Shop Baptism Edition
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Colors collection */}
+      <section className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-gold-bright)]">
-                Seasonal Collection
+              <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-rope)]">
+                17 Colors, One Look
               </span>
-              <h2 className="mt-2 font-display text-3xl sm:text-4xl">
-                Halloween Spin Piñatas
+              <h2 className="mt-2 font-display text-3xl text-[var(--color-midway)] sm:text-4xl">
+                Colors Collection
               </h2>
             </div>
             <Link
-              href="/shop?category=halloween"
-              className="cursor-pointer text-sm font-semibold text-[var(--color-gold-bright)] underline-offset-4 hover:underline"
+              href="/shop?category=colors"
+              className="cursor-pointer text-sm font-semibold text-[var(--color-midway)] underline-offset-4 hover:underline"
             >
-              Shop Halloween →
+              Shop All Colors →
             </Link>
           </div>
-          <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-2 lg:max-w-xl">
-            {halloween.map((product) => (
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+            {colors.map((product) => (
               <ProductCard key={product.slug} product={product} />
             ))}
           </div>
@@ -84,6 +122,33 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Halloween seasonal block */}
+      <section className="bg-[var(--color-ink)] text-white">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-gold-bright)]">
+                Seasonal Collection
+              </span>
+              <h2 className="mt-2 font-display text-3xl sm:text-4xl">
+                Halloween Spin Piñatas
+              </h2>
+            </div>
+            <Link
+              href="/shop?category=halloween"
+              className="cursor-pointer text-sm font-semibold text-[var(--color-gold-bright)] underline-offset-4 hover:underline"
+            >
+              Shop Halloween →
+            </Link>
+          </div>
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-2 lg:max-w-xl">
+            {halloween.map((product) => (
+              <ProductCard key={product.slug} product={product} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Patent pending / reusable favorites */}
       <section className="bg-[var(--color-midway-deep)] text-white">
         <div className="mx-auto max-w-6xl px-4 py-16 text-center sm:px-6">
@@ -117,63 +182,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Influencer collaboration */}
-      {collab && (
-        <section className="bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-            <div className="grid items-center gap-10 md:grid-cols-2">
-              <div className="order-2 md:order-1">
-                <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-rope)]">
-                  Limited Collaboration
-                </span>
-                <h2 className="mt-2 font-display text-3xl text-[var(--color-midway)] sm:text-4xl">
-                  {collab.name}
-                </h2>
-                <p className="mt-4 max-w-md leading-relaxed text-black/75">
-                  {collab.description}
-                </p>
-                <Link
-                  href={`/shop/${collab.slug}`}
-                  className="mt-6 inline-block cursor-pointer rounded-full bg-[var(--color-midway)] px-7 py-4 font-bold text-white transition-colors hover:bg-[var(--color-midway-light)]"
-                >
-                  Shop the Collab
-                </Link>
-              </div>
-              <div className="order-1 max-w-xs md:order-2 md:ml-auto">
-                <ProductCard product={collab} />
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Colors collection */}
-      <section className="bg-[var(--color-kraft)]">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-rope)]">
-                17 Colors, One Look
-              </span>
-              <h2 className="mt-2 font-display text-3xl text-[var(--color-midway)] sm:text-4xl">
-                Colors Collection
-              </h2>
-            </div>
-            <Link
-              href="/shop?category=colors"
-              className="cursor-pointer text-sm font-semibold text-[var(--color-midway)] underline-offset-4 hover:underline"
-            >
-              Shop All Colors →
-            </Link>
-          </div>
-          <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-            {colors.map((product) => (
-              <ProductCard key={product.slug} product={product} />
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Design collection */}
       <section className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
@@ -201,44 +209,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Baptism feature */}
-      {baptism && (
-        <section className="bg-[var(--color-kraft)]">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-            <div className="grid items-center gap-10 rounded-3xl bg-white p-6 shadow-sm sm:p-10 md:grid-cols-2">
-              <div className="relative aspect-square overflow-hidden rounded-2xl md:order-2">
-                {baptism.image && (
-                  <Image
-                    src={baptism.image}
-                    alt={baptism.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover"
-                  />
-                )}
-              </div>
-              <div className="md:order-1">
-                <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-rope)]">
-                  Made for the Occasion
-                </span>
-                <h2 className="mt-2 font-display text-3xl text-[var(--color-midway)] sm:text-4xl">
-                  {baptism.name.replace(/\s*\(.*\)/, "")}
-                </h2>
-                <p className="mt-4 max-w-md leading-relaxed text-black/75">
-                  {baptism.description}
-                </p>
-                <Link
-                  href={`/shop/${baptism.slug}`}
-                  className="mt-6 inline-block cursor-pointer rounded-full bg-[var(--color-midway)] px-7 py-4 font-bold text-white transition-colors hover:bg-[var(--color-midway-light)]"
-                >
-                  Shop Baptism Edition
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Merch */}
       {tshirt && (
         <section className="bg-[var(--color-ink)] text-white">
@@ -263,6 +233,36 @@ export default function Home() {
               </div>
               <div className="max-w-xs md:ml-auto">
                 <ProductCard product={tshirt} />
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Influencer collaboration */}
+      {collab && (
+        <section className="bg-[var(--color-kraft)]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+            <div className="grid items-center gap-10 md:grid-cols-2">
+              <div className="order-2 md:order-1">
+                <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-rope)]">
+                  Limited Collaboration
+                </span>
+                <h2 className="mt-2 font-display text-3xl text-[var(--color-midway)] sm:text-4xl">
+                  {collab.name}
+                </h2>
+                <p className="mt-4 max-w-md leading-relaxed text-black/75">
+                  {collab.description}
+                </p>
+                <Link
+                  href={`/shop/${collab.slug}`}
+                  className="mt-6 inline-block cursor-pointer rounded-full bg-[var(--color-midway)] px-7 py-4 font-bold text-white transition-colors hover:bg-[var(--color-midway-light)]"
+                >
+                  Shop the Collab
+                </Link>
+              </div>
+              <div className="order-1 max-w-xs md:order-2 md:ml-auto">
+                <ProductCard product={collab} />
               </div>
             </div>
           </div>

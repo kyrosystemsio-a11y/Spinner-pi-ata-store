@@ -6,6 +6,8 @@ import * as THREE from "three";
 
 const WOOD_COLOR = "#c9974c";
 const ROPE_COLOR = "#e3d3b6";
+// TODO(color-match): swap these for the real ribbon hex values once the
+// client's reference photos are in — currently approximate brand colors.
 const RIBBON_COLORS = ["#e7b740", "#ff4fa3", "#7ec8e3"];
 const LED_COLORS = ["#ff5b5b", "#ffcc00", "#4ddd6a", "#4da6ff", "#caa6ff"];
 const CONFETTI_COLORS = ["#b5472b", "#e7b740", "#f6d678", "#1f8a4c", "#2459c7", "#f3a0c2"];
@@ -16,7 +18,8 @@ const CAGE_HALF_HEIGHT = 1.85;
 const PLATFORM_RADIUS = CAGE_RADIUS * 0.92;
 const PLATFORM_THICKNESS = 0.12;
 const DOWEL_RADIUS = 0.055;
-const DOWEL_COUNT = 4;
+// Five sticks/ribbons total, matching the real product (was 4).
+const DOWEL_COUNT = 5;
 
 const BAND_COUNT = 16;
 const LED_RING_COUNT = 5;

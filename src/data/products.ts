@@ -35,6 +35,9 @@ export interface Product {
   image: string | null;
   /** Additional photos for the PDP gallery. Falls back to [image] when omitted. */
   gallery?: string[];
+  // TODO(color-match): every `swatch` value below is an approximate brand
+  // color, not matched to the real ribbon inventory. Swap these for the
+  // client's actual ribbon hex values once reference photos are in.
   /** Hex used to tint the illustrated placeholder + swatch chip */
   swatch: string;
   description: string;

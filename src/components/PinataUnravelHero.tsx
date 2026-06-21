@@ -59,13 +59,16 @@ export default function PinataUnravelHero() {
             Patent Pending Spin Design
           </span>
           <h1 className="animate-rise mt-6 font-display text-4xl leading-tight sm:text-6xl md:text-7xl">
-            SPIN. PULL.
+            NO STICK.
             <br />
-            REPEAT.
+            NO SMASH.
+            <br />
+            JUST SPIN.
           </h1>
           <p className="animate-rise mt-5 max-w-xl text-base text-white sm:text-lg">
-            Handcrafted spin piñatas built to be pulled, spun, and reused
-            party after party — keep scrolling and watch it unravel.
+            No hitting stick, no smashing — pull a ribbon, the body spins,
+            and candy releases on its own. Safer for little hands, more
+            turns for everyone.
           </p>
           <div className="animate-rise mt-8 flex flex-col gap-3 sm:flex-row">
             <Link

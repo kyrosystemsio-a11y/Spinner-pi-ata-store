@@ -21,11 +21,11 @@ const STEPS = [
   },
   {
     title: "Pull the Ribbons",
-    copy: "While it spins, guests take turns pulling a ribbon. Each pull releases a little candy, so everyone gets a turn before it's empty.",
+    copy: "While it spins, guests take turns pulling a ribbon — or designate one person to pull. Each pull releases a little candy, so everyone gets a turn before it's empty.",
   },
   {
     title: "Reuse It",
-    copy: "Once it's empty, just restock it. Because nothing gets smashed, your Spinner Piñata is ready for the next party right away.",
+    copy: "Once it's empty, just restock it and reattach the ribbon with double-sided tape (or a hot glue gun). Because nothing gets smashed, your Spinner Piñata is ready for the next party right away.",
   },
 ];
 
