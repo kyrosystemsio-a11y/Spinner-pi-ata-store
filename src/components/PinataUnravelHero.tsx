@@ -50,6 +50,10 @@ export default function PinataUnravelHero() {
           <PinataHeroCanvas progress={progress} />
         </div>
 
+        <div
+          className="absolute inset-x-0 top-1/2 z-0 h-[70%] -translate-y-1/2 bg-[radial-gradient(60%_60%_at_50%_50%,rgba(15,3,28,0.78)_0%,rgba(15,3,28,0.45)_55%,transparent_85%)]"
+          aria-hidden="true"
+        />
         <div className="relative z-10 mx-auto flex max-w-6xl flex-1 flex-col items-center justify-center px-4 py-20 text-center sm:px-6">
           <span className="animate-rise rounded-full border border-[var(--color-gold)] px-4 py-1 text-xs font-bold uppercase tracking-widest text-[var(--color-gold-bright)]">
             Patent Pending Spin Design
@@ -59,7 +63,7 @@ export default function PinataUnravelHero() {
             <br />
             REPEAT.
           </h1>
-          <p className="animate-rise mt-5 max-w-xl text-base text-white/85 sm:text-lg">
+          <p className="animate-rise mt-5 max-w-xl text-base text-white sm:text-lg">
             Handcrafted spin piñatas built to be pulled, spun, and reused
             party after party — keep scrolling and watch it unravel.
           </p>

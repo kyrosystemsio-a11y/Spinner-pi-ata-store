@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SOCIAL_LINKS } from "@/data/social";
 
 const FOOTER_LINKS = [
   { href: "/shop", label: "Shop All" },
@@ -7,8 +8,11 @@ const FOOTER_LINKS = [
   { href: "/instructions", label: "How It Works" },
   { href: "/maps", label: "Shipping" },
   { href: "/contact-us", label: "Contact Us" },
+  { href: "/returns-policy", label: "Returns & Guarantee" },
   { href: "/privacy-policy", label: "Privacy Policy" },
 ];
+
+const activeSocialLinks = SOCIAL_LINKS.filter((link) => link.href);
 
 export default function Footer() {
   return (
@@ -24,6 +28,22 @@ export default function Footer() {
             smashed once. Pick your colors, pull the ribbons, and let the
             tornado of confetti fly.
           </p>
+          {activeSocialLinks.length > 0 && (
+            <div className="mt-5 flex gap-3">
+              {activeSocialLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={link.label}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
+                >
+                  {link.icon}
+                </a>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-x-10 gap-y-6">

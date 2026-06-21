@@ -16,10 +16,33 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://spinnerpinata.com";
+const SITE_TITLE = "Spinner Piñata | Handmade Spin & Pull Piñatas";
+const SITE_DESCRIPTION =
+  "Reusable, handcrafted spin piñatas for birthdays, baptisms, and every fiesta. Pick your colors, pull the ribbons, and watch it spin.";
+
 export const metadata: Metadata = {
-  title: "Spinner Pinata | Handmade Spin & Pull Pinatas",
-  description:
-    "Reusable, handcrafted spin pinatas for birthdays, baptisms, and every fiesta. Pick your colors, pull the ribbons, and watch it spin.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: "%s",
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: "Spinner Piñata",
+    images: ["/icon.png"],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/icon.png"],
+  },
 };
 
 export default function RootLayout({

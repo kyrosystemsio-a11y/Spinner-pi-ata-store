@@ -73,7 +73,7 @@ export default function AddToCartForm({ product }: { product: Product }) {
         onClick={handleAdd}
         className="w-full cursor-pointer rounded-full bg-[var(--color-midway)] px-6 py-4 text-base font-bold text-white transition-colors hover:bg-[var(--color-midway-light)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-gold)]"
       >
-        {added ? "Added to Cart ✓" : "Add to Cart"}
+        {added ? "Added — Ready to Spin ✓" : "Add to My Spin"}
       </button>
     </div>
   );

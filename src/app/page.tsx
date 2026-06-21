@@ -269,6 +269,54 @@ export default function Home() {
         </section>
       )}
 
+      {/* FAQ */}
+      <section className="bg-white">
+        <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+          <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-rope)]">
+            Good to Know
+          </span>
+          <h2 className="mt-2 font-display text-3xl text-[var(--color-midway)] sm:text-4xl">
+            Frequently Asked Questions
+          </h2>
+          <div className="mt-8 flex flex-col gap-4">
+            {[
+              {
+                q: "How is a Spinner Piñata different from a regular one?",
+                a: "You don't smash it. Give it a spin and pull a ribbon — each pull releases a little candy without breaking the body, so it's ready for the next party right away.",
+              },
+              {
+                q: "How long does shipping take?",
+                a: "Ready-made colors and designs ship in 2–3 business days. Custom builds need 2–3 extra days to hand-build before they ship. We ship nationwide.",
+              },
+              {
+                q: "Can I pick my own ribbon color?",
+                a: "Yes — every custom build lets you choose from 17 ribbon colors and upload a photo of the theme or character you want.",
+              },
+              {
+                q: "What if I'm not happy with my order?",
+                a: "Tell us. Ready-made items can be returned within 14 days, and we'll always make it right if something arrives damaged. See our Returns & Guarantee policy for details.",
+              },
+              {
+                q: "Is it really reusable?",
+                a: "Yes — once it's empty, just restock the candy through the top opening and it's ready to spin again at the next party.",
+              },
+            ].map((item) => (
+              <details
+                key={item.q}
+                className="group rounded-xl bg-[var(--color-kraft)] p-5 open:bg-white open:shadow-sm"
+              >
+                <summary className="cursor-pointer list-none font-semibold text-[var(--color-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-midway)]">
+                  {item.q}
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-black/75">
+                  {item.a}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Closer */}
       <section className="bg-midway-gradient text-white">
         <div className="gold-divider w-full" />

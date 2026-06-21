@@ -19,6 +19,13 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   merch: "Merchandise",
 };
 
+export interface Review {
+  author: string;
+  rating: 1 | 2 | 3 | 4 | 5;
+  text: string;
+  date: string;
+}
+
 export interface Product {
   slug: string;
   name: string;
@@ -26,11 +33,15 @@ export interface Product {
   category: Category;
   /** Path under /public/products, or null when we're using the illustrated placeholder */
   image: string | null;
+  /** Additional photos for the PDP gallery. Falls back to [image] when omitted. */
+  gallery?: string[];
   /** Hex used to tint the illustrated placeholder + swatch chip */
   swatch: string;
   description: string;
   isAnimatedGlow?: boolean;
   customizable?: boolean;
+  /** Real customer reviews only — omit or leave empty until reviews come in. */
+  reviews?: Review[];
 }
 
 export const RIBBON_COLORS = [
@@ -125,4 +136,27 @@ export function getProductsByCategory(category: Category | "all"): Product[] {
 
 export function getProductBySlug(slug: string): Product | undefined {
   return PRODUCTS.find((p) => p.slug === slug);
+}
+
+export function getProductGallery(product: Product): string[] {
+  if (product.gallery && product.gallery.length > 0) return product.gallery;
+  return product.image ? [product.image] : [];
+}
+
+export function getAverageRating(product: Product): number | null {
+  if (!product.reviews || product.reviews.length === 0) return null;
+  const total = product.reviews.reduce((sum, r) => sum + r.rating, 0);
+  return total / product.reviews.length;
+}
+
+export function getRelatedProducts(product: Product, limit = 4): Product[] {
+  const sameCategory = PRODUCTS.filter(
+    (p) => p.category === product.category && p.slug !== product.slug
+  );
+  if (sameCategory.length >= limit) return sameCategory.slice(0, limit);
+
+  const fallback = PRODUCTS.filter(
+    (p) => p.category !== product.category && p.slug !== product.slug
+  );
+  return [...sameCategory, ...fallback].slice(0, limit);
 }
