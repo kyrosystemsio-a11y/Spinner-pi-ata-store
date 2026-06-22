@@ -6,6 +6,7 @@ import { SITE_URL } from "@/lib/site";
 import { SOCIAL_LINKS } from "@/data/social";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import WebVitals from "@/components/WebVitals";
 
 const bungee = Bungee({
   variable: "--font-bungee",
@@ -72,6 +73,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <WebVitals />
         <CartProvider>
           <Navbar />
           <main className="flex-1">{children}</main>
