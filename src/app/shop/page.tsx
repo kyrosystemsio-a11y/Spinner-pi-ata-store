@@ -1,7 +1,9 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { getProductsByCategory, type Category } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import CategoryFilter from "@/components/CategoryFilter";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Shop All Spin Piñatas | Spinner Piñata",
@@ -35,8 +37,30 @@ export default async function ShopPage({
 
   const products = getProductsByCategory(category);
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Shop", item: `${SITE_URL}/shop` },
+    ],
+  };
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+
+      <nav className="mb-4 text-sm text-black/60">
+        <Link href="/" className="hover:underline">
+          Home
+        </Link>
+        <span className="mx-2">/</span>
+        <span className="text-black/80">Shop</span>
+      </nav>
+
       <h1 className="font-display text-3xl text-[var(--color-midway)] sm:text-4xl">
         Shop All Piñatas
       </h1>

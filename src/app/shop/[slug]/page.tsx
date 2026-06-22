@@ -71,6 +71,47 @@ export default async function ProductPage({
           },
         }
       : {}),
+    ...(reviews.length > 0
+      ? {
+          review: reviews.map((review) => ({
+            "@type": "Review",
+            author: { "@type": "Person", name: review.author },
+            reviewBody: review.text,
+            ...(review.rating != null
+              ? {
+                  reviewRating: {
+                    "@type": "Rating",
+                    ratingValue: review.rating,
+                    bestRating: 5,
+                    worstRating: 1,
+                  },
+                }
+              : {}),
+            ...(review.date ? { datePublished: review.date } : {}),
+          })),
+        }
+      : {}),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Shop", item: `${SITE_URL}/shop` },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: CATEGORY_LABELS[product.category],
+        item: `${SITE_URL}/shop?category=${product.category}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
+        name: product.name,
+        item: `${SITE_URL}/shop/${product.slug}`,
+      },
+    ],
   };
 
   return (
@@ -78,6 +119,10 @@ export default async function ProductPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
       <nav className="mb-6 text-sm text-black/60">
