@@ -5,6 +5,8 @@ import ClearCartOnMount from "@/components/ClearCartOnMount";
 
 export const metadata: Metadata = {
   title: "Order Confirmed | Spinner Piñata",
+  alternates: { canonical: "/checkout/success" },
+  robots: { index: false, follow: false },
 };
 
 export default async function CheckoutSuccessPage({

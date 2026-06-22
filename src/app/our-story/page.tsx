@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Our Story | Spinner Piñata",
   description:
     "How Spinner Piñata reinvented the piñata with a reusable spin-and-pull design, hand-built one ribbon at a time.",
+  alternates: { canonical: "/our-story" },
 };
 
 export default function OurStoryPage() {

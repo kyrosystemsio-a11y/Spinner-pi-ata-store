@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Shop All Spin Piñatas | Spinner Piñata",
   description:
     "Browse the full Spinner Piñata catalog — colors, designs, Halloween, glow, baptism, and custom builds.",
+  alternates: { canonical: "/shop" },
 };
 
 const VALID_CATEGORIES: Category[] = [

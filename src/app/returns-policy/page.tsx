@@ -4,6 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Returns & Guarantee | Spinner Piñata",
   description: "Our returns, exchanges, and satisfaction guarantee for Spinner Piñata orders.",
+  alternates: { canonical: "/returns-policy" },
 };
 
 export default function ReturnsPolicyPage() {

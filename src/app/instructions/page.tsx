@@ -4,6 +4,7 @@ export const metadata: Metadata = {
   title: "How It Works | Spinner Piñata",
   description:
     "How to hang, spin, and pull your Spinner Piñata for the best party reveal.",
+  alternates: { canonical: "/instructions" },
 };
 
 const STEPS = [

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Shipping | Spinner Piñata",
   description: "Where Spinner Piñata ships and what to expect for delivery times.",
+  alternates: { canonical: "/shipping" },
 };
 
 const REGIONS = [

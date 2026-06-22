@@ -30,6 +30,7 @@ export async function generateMetadata({
   return {
     title: `${product.name} | Spinner Piñata`,
     description: product.description,
+    alternates: { canonical: `/shop/${product.slug}` },
   };
 }
 
