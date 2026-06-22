@@ -39,9 +39,15 @@ export interface Product {
   image: string | null;
   /** Additional photos for the PDP gallery. Falls back to [image] when omitted. */
   gallery?: string[];
-  // TODO(color-match): every `swatch` value below is an approximate brand
-  // color, not matched to the real ribbon inventory. Swap these for the
-  // client's actual ribbon hex values once reference photos are in.
+  // TODO(color-match): swatches for the 18 single-color "colors" category
+  // products are sampled (median pixel color of the ribbon body, cropped out
+  // of the surrounding background/border) directly from their own
+  // /public/products photos. Swatches for multi-color/decorative products
+  // (design, halloween, baptism, merch, custom builds) are still hand-picked
+  // approximations, since those photos show several colors at once and have
+  // no single true "ribbon color" a crop/median could reliably extract.
+  // `glow` and `luis-loera-collab` have no product photo at all (image:
+  // null), so their swatch is unverifiable until a reference photo exists.
   /** Hex used to tint the illustrated placeholder + swatch chip */
   swatch: string;
   description: string;
@@ -98,26 +104,26 @@ export const PRODUCTS: Product[] = [
   },
 
   // Colors Collection — $59.99
-  { slug: "spinata-blue", name: "Spinata Blue", price: 59.99, category: "colors", image: "/products/blue.jpg", swatch: "#2459c7", description: "A bold cobalt blue Spinner Pinata, hand-wrapped and ready to spin." },
-  { slug: "spinata-red", name: "Spinata Red", price: 59.99, category: "colors", image: "/products/red.jpg", swatch: "#d11f2c", description: "Classic fiesta red — the color that started it all." },
-  { slug: "spinata-white", name: "Spinata White", price: 59.99, category: "colors", image: "/products/white.jpg", swatch: "#f5f3ee", description: "Crisp, clean white — a blank canvas for any party theme." },
-  { slug: "spinata-pink", name: "Spinata Pink", price: 59.99, category: "colors", image: "/products/pink.jpg", swatch: "#f3a0c2", description: "Soft bubblegum pink, perfect for birthdays and showers." },
-  { slug: "spinata-green", name: "Spinata Green", price: 59.99, category: "colors", image: "/products/green.jpg", swatch: "#1f8a4c", description: "Rich forest green with a satin ribbon finish." },
-  { slug: "spinata-orange", name: "Spinata Orange", price: 59.99, category: "colors", image: "/products/orange.jpg", swatch: "#e8722e", description: "Sun-bright orange, a fiesta favorite." },
-  { slug: "spinata-yellow", name: "Spinata Yellow", price: 59.99, category: "colors", image: "/products/yellow.jpg", swatch: "#f3c61a", description: "Sunshine yellow — cheerful and impossible to miss." },
-  { slug: "spinata-apple-green", name: "Spinata Apple Green", price: 59.99, category: "colors", image: "/products/apple-green.webp", swatch: "#8bc53f", description: "Crisp apple green with a glossy ribbon wrap." },
-  { slug: "spinata-gold", name: "Spinata Gold", price: 59.99, category: "colors", image: "/products/gold.jpg", swatch: "#cf9a2e", description: "Metallic gold finish for milestone celebrations." },
-  { slug: "spinata-turquoise", name: "Spinata Turquoise", price: 59.99, category: "colors", image: "/products/turquoise.jpg", swatch: "#1fb6b0", description: "Beachy turquoise with a satin sheen." },
-  { slug: "spinata-shocking-pink", name: "Spinata Shocking Pink", price: 59.99, category: "colors", image: "/products/shocking-pink.jpg", swatch: "#ff2d96", description: "Maximum-volume neon pink." },
-  { slug: "spinata-black", name: "Spinata Black", price: 59.99, category: "colors", image: "/products/black.jpg", swatch: "#1a1620", description: "Sleek matte black for a modern party look." },
-  { slug: "spinata-magenta", name: "Spinata Magenta", price: 59.99, category: "colors", image: "/products/magenta.jpg", swatch: "#c3198a", description: "Deep magenta with a rich satin ribbon." },
+  { slug: "spinata-blue", name: "Spinata Blue", price: 59.99, category: "colors", image: "/products/blue.jpg", swatch: "#0020ac", description: "A bold cobalt blue Spinner Pinata, hand-wrapped and ready to spin." },
+  { slug: "spinata-red", name: "Spinata Red", price: 59.99, category: "colors", image: "/products/red.jpg", swatch: "#f05749", description: "Classic fiesta red — the color that started it all." },
+  { slug: "spinata-white", name: "Spinata White", price: 59.99, category: "colors", image: "/products/white.jpg", swatch: "#f3f3f3", description: "Crisp, clean white — a blank canvas for any party theme." },
+  { slug: "spinata-pink", name: "Spinata Pink", price: 59.99, category: "colors", image: "/products/pink.jpg", swatch: "#c995a4", description: "Soft bubblegum pink, perfect for birthdays and showers." },
+  { slug: "spinata-green", name: "Spinata Green", price: 59.99, category: "colors", image: "/products/green.jpg", swatch: "#028262", description: "Rich forest green with a satin ribbon finish." },
+  { slug: "spinata-orange", name: "Spinata Orange", price: 59.99, category: "colors", image: "/products/orange.jpg", swatch: "#c92e11", description: "Sun-bright orange, a fiesta favorite." },
+  { slug: "spinata-yellow", name: "Spinata Yellow", price: 59.99, category: "colors", image: "/products/yellow.jpg", swatch: "#dac902", description: "Sunshine yellow — cheerful and impossible to miss." },
+  { slug: "spinata-apple-green", name: "Spinata Apple Green", price: 59.99, category: "colors", image: "/products/apple-green.webp", swatch: "#5f8e23", description: "Crisp apple green with a glossy ribbon wrap." },
+  { slug: "spinata-gold", name: "Spinata Gold", price: 59.99, category: "colors", image: "/products/gold.jpg", swatch: "#df9f38", description: "Metallic gold finish for milestone celebrations." },
+  { slug: "spinata-turquoise", name: "Spinata Turquoise", price: 59.99, category: "colors", image: "/products/turquoise.jpg", swatch: "#1da7d3", description: "Beachy turquoise with a satin sheen." },
+  { slug: "spinata-shocking-pink", name: "Spinata Shocking Pink", price: 59.99, category: "colors", image: "/products/shocking-pink.jpg", swatch: "#c21835", description: "Maximum-volume neon pink." },
+  { slug: "spinata-black", name: "Spinata Black", price: 59.99, category: "colors", image: "/products/black.jpg", swatch: "#0f1016", description: "Sleek matte black for a modern party look." },
+  { slug: "spinata-magenta", name: "Spinata Magenta", price: 59.99, category: "colors", image: "/products/magenta.jpg", swatch: "#b8182b", description: "Deep magenta with a rich satin ribbon." },
   {
     slug: "spinata-purple",
     name: "Spinata Purple",
     price: 59.99,
     category: "colors",
     image: "/products/purple.jpg",
-    swatch: "#6d2f9e",
+    swatch: "#210f46",
     description: "Royal purple — our signature midway color.",
     // Verbatim text from confirmed Amazon listing reviews. Reviewer names, star
     // ratings, and dates are not publicly exposed by Amazon, so they're omitted
@@ -133,10 +139,10 @@ export const PRODUCTS: Product[] = [
       { author: "Verified Amazon Customer", text: "This was perfect for the baptism I just threw ! Candies and money flying everywhere. It's much more convenient than throwing chunk at such small spots." },
     ],
   },
-  { slug: "spinata-lime", name: "Spinata Lime", price: 59.99, category: "colors", image: "/products/lime.jpg", swatch: "#b6d92f", description: "Electric lime for a high-energy party." },
-  { slug: "spinata-light-blue", name: "Spinata Light Blue", price: 59.99, category: "colors", image: "/products/light-blue.jpg", swatch: "#7fc3e8", description: "Soft sky blue, calm and breezy." },
-  { slug: "spinata-mocha", name: "Spinata Brown (Mocha)", price: 59.99, category: "colors", image: "/products/brown.jpg", swatch: "#6b4327", description: "Warm mocha brown with a kraft-paper feel." },
-  { slug: "ivory", name: "Spinata Ivory", price: 59.99, category: "colors", image: "/products/ivory.webp", swatch: "#efe6d3", description: "Elegant ivory, a favorite for weddings." },
+  { slug: "spinata-lime", name: "Spinata Lime", price: 59.99, category: "colors", image: "/products/lime.jpg", swatch: "#b19b45", description: "Electric lime for a high-energy party." },
+  { slug: "spinata-light-blue", name: "Spinata Light Blue", price: 59.99, category: "colors", image: "/products/light-blue.jpg", swatch: "#a7b9cd", description: "Soft sky blue, calm and breezy." },
+  { slug: "spinata-mocha", name: "Spinata Brown (Mocha)", price: 59.99, category: "colors", image: "/products/brown.jpg", swatch: "#6e4b26", description: "Warm mocha brown with a kraft-paper feel." },
+  { slug: "ivory", name: "Spinata Ivory", price: 59.99, category: "colors", image: "/products/ivory.webp", swatch: "#d5b590", description: "Elegant ivory, a favorite for weddings." },
 
   // Design Collection
   { slug: "dia-de-los-muertos", name: "Spinata DIA DE LOS MUERTOS", price: 65.99, category: "design", image: "/products/dia-de-los-muertos.jpg", swatch: "#3a0a5e", description: "Hand-decorated with vibrant sugar-skull medallions on ivory satin — a tribute piece for Día de los Muertos." },
