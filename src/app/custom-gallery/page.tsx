@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getProductsByCategory } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
+import CustomBuildGallery, { type PastBuild } from "@/components/CustomBuildGallery";
+
+// Real photos of completed customer builds go here once we have them.
+// Do not fabricate entries — CustomBuildGallery renders an honest empty
+// state when this is empty.
+const PAST_BUILDS: PastBuild[] = [];
 
 export const metadata: Metadata = {
   title: "Custom Builds | Spinner Piñata",
@@ -29,7 +35,7 @@ export default function CustomGalleryPage() {
         ))}
       </div>
 
-      {/* TODO(jay): once we have real customer photos of completed custom builds, add a true gallery section here. Do not fabricate. */}
+      <CustomBuildGallery builds={PAST_BUILDS} />
 
       <div className="mt-10 rounded-xl bg-white p-6 shadow-sm">
         <h2 className="font-semibold text-[var(--color-midway)]">
