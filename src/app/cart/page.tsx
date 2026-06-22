@@ -102,7 +102,7 @@ export default function CartPage() {
                     onClick={() =>
                       updateQuantity(line.slug, line.ribbonColor, line.quantity - 1)
                     }
-                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-black/15 hover:bg-black/5"
+                    className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-black/15 hover:bg-black/5"
                   >
                     −
                   </button>
@@ -112,7 +112,7 @@ export default function CartPage() {
                     onClick={() =>
                       updateQuantity(line.slug, line.ribbonColor, line.quantity + 1)
                     }
-                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-black/15 hover:bg-black/5"
+                    className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-black/15 hover:bg-black/5"
                   >
                     +
                   </button>

@@ -5,7 +5,7 @@
 export const SOCIAL_LINKS = [
   {
     label: "Instagram",
-    href: "",
+    href: "https://www.instagram.com/spinnerpinata5",
     icon: (
       <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
         <rect x="3" y="3" width="18" height="18" rx="5" />

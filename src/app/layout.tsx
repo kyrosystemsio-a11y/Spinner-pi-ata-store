@@ -3,6 +3,7 @@ import { Bungee, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
 import { SITE_URL } from "@/lib/site";
+import { SOCIAL_LINKS } from "@/data/social";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -51,12 +52,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const sameAs = SOCIAL_LINKS.filter((link) => link.href).map((link) => link.href);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Spinner Piñata",
+    url: SITE_URL,
+    logo: `${SITE_URL}/icon.png`,
+    ...(sameAs.length > 0 ? { sameAs } : {}),
+  };
+
   return (
     <html
       lang="en"
       className={`${bungee.variable} ${jakarta.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-kraft-texture text-[var(--color-ink)]">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <CartProvider>
           <Navbar />
           <main className="flex-1">{children}</main>

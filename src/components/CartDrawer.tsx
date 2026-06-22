@@ -90,7 +90,7 @@ export default function CartDrawer() {
                               line.quantity - 1
                             )
                           }
-                          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-black/15 hover:bg-black/5"
+                          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-black/15 hover:bg-black/5"
                         >
                           −
                         </button>
@@ -106,7 +106,7 @@ export default function CartDrawer() {
                               line.quantity + 1
                             )
                           }
-                          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-black/15 hover:bg-black/5"
+                          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-black/15 hover:bg-black/5"
                         >
                           +
                         </button>
