@@ -25,13 +25,19 @@ export default function ProductReviews({
         <h2 className="font-display text-2xl text-[var(--color-midway)]">
           Customer Reviews
         </h2>
-        {averageRating !== null && (
+        {averageRating !== null ? (
           <div className="flex items-center gap-2">
             <Stars rating={averageRating} />
             <span className="text-sm font-semibold text-black/70">
               {averageRating.toFixed(1)} ({reviews.length})
             </span>
           </div>
+        ) : (
+          reviews.length > 0 && (
+            <span className="text-sm font-semibold text-black/70">
+              {reviews.length} review{reviews.length === 1 ? "" : "s"}
+            </span>
+          )
         )}
       </div>
 
@@ -50,9 +56,12 @@ export default function ProductReviews({
             <li key={i} className="rounded-xl bg-white p-5 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="font-semibold text-[var(--color-ink)]">{review.author}</p>
-                <Stars rating={review.rating} />
+                {review.rating != null && <Stars rating={review.rating} />}
               </div>
               <p className="mt-2 text-sm leading-relaxed text-black/75">{review.text}</p>
+              {review.date && (
+                <p className="mt-2 text-xs text-black/40">{review.date}</p>
+              )}
             </li>
           ))}
         </ul>
