@@ -22,7 +22,7 @@ const STEPS = [
   },
   {
     title: "Pull the Ribbons",
-    copy: "While it spins, guests take turns pulling a ribbon — or designate one person to pull. Each pull releases a little candy, so everyone gets a turn before it's empty.",
+    copy: "While it spins, designate one person to pull the ribbon. Each pull releases a little candy, so everyone gets a turn before it's empty.",
   },
   {
     title: "Reuse It",
