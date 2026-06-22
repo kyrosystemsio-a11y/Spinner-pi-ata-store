@@ -16,6 +16,7 @@ export default function Home() {
   const baptism = getProductBySlug("baptism");
   const tshirt = getProductBySlug("t-shirt");
   const collab = getProductBySlug("luis-loera-collab");
+  const topReviews = (getProductBySlug("spinata-purple")?.reviews ?? []).slice(0, 3);
 
   return (
     <div className="flex flex-col">
@@ -316,6 +317,34 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Reviews */}
+      {topReviews.length > 0 && (
+        <section className="bg-[var(--color-kraft)]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+            <div className="text-center">
+              <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-rope)]">
+                From Real Customers
+              </span>
+              <h2 className="mt-2 font-display text-3xl text-[var(--color-midway)] sm:text-4xl">
+                What People Are Saying
+              </h2>
+            </div>
+            <div className="mt-10 grid gap-6 sm:grid-cols-3">
+              {topReviews.map((review, i) => (
+                <div key={i} className="rounded-xl bg-white p-6 shadow-sm">
+                  <p className="text-sm leading-relaxed text-black/75">
+                    &ldquo;{review.text}&rdquo;
+                  </p>
+                  <p className="mt-4 text-sm font-semibold text-[var(--color-ink)]">
+                    {review.author}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Closer */}
       <section className="bg-midway-gradient text-white">
