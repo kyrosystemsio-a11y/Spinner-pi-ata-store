@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { useCart } from "@/lib/cart-context";
 
 export default function CartDrawer() {
@@ -14,6 +15,46 @@ export default function CartDrawer() {
     removeItem,
   } = useCart();
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previouslyFocused = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    previouslyFocused.current = document.activeElement as HTMLElement | null;
+    closeButtonRef.current?.focus();
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        closeCart();
+        return;
+      }
+      if (e.key !== "Tab") return;
+
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
+        'button, a[href], input, [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusable || focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      previouslyFocused.current?.focus();
+    };
+  }, [isOpen, closeCart]);
+
   return (
     <>
       <div
@@ -24,18 +65,21 @@ export default function CartDrawer() {
         aria-hidden="true"
       />
       <aside
+        ref={dialogRef}
         className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col bg-[var(--color-kraft)] shadow-2xl transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         role="dialog"
         aria-modal="true"
         aria-label="Shopping cart"
+        inert={!isOpen}
       >
         <div className="flex items-center justify-between border-b border-black/10 px-5 py-4">
           <h2 className="font-display text-lg text-[var(--color-midway)]">
             Your Cart
           </h2>
           <button
+            ref={closeButtonRef}
             onClick={closeCart}
             aria-label="Close cart"
             className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-2xl leading-none hover:bg-black/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-gold)]"
