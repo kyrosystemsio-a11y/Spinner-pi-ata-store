@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import PinataIcon from "@/components/PinataIcon";
+import { isVideoSrc, webmVariant } from "@/lib/media";
 
 export default function ProductGallery({
   images,
@@ -29,14 +30,28 @@ export default function ProductGallery({
         style={{ backgroundColor: swatch }}
       >
         {active ? (
-          <Image
-            src={active}
-            alt={alt}
-            fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover"
-            priority={!isAnimatedGlow}
-          />
+          isVideoSrc(active) ? (
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 h-full w-full object-cover"
+              aria-label={alt}
+            >
+              <source src={webmVariant(active)} type="video/webm" />
+              <source src={active} type="video/mp4" />
+            </video>
+          ) : (
+            <Image
+              src={active}
+              alt={alt}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+              priority={!isAnimatedGlow}
+            />
+          )
         ) : (
           <div className="flex h-full items-center justify-center p-12">
             <PinataIcon className="h-full w-full" color="#ffffff33" glow={isAnimatedGlow} />
@@ -60,7 +75,14 @@ export default function ProductGallery({
               }`}
               style={{ backgroundColor: swatch }}
             >
-              <Image src={src} alt="" fill sizes="64px" className="object-cover" />
+              <Image
+                src={src}
+                alt=""
+                aria-hidden="true"
+                fill
+                sizes="64px"
+                className="object-cover"
+              />
             </button>
           ))}
         </div>
@@ -82,7 +104,21 @@ export default function ProductGallery({
             </svg>
           </button>
           <div className="relative h-full max-h-[90vh] w-full max-w-3xl">
-            <Image src={active} alt={alt} fill sizes="100vw" className="object-contain" />
+            {isVideoSrc(active) ? (
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="h-full w-full object-contain"
+                aria-label={alt}
+              >
+                <source src={webmVariant(active)} type="video/webm" />
+                <source src={active} type="video/mp4" />
+              </video>
+            ) : (
+              <Image src={active} alt={alt} fill sizes="100vw" className="object-contain" />
+            )}
           </div>
         </div>
       )}

@@ -13,8 +13,7 @@ import AddToCartForm from "@/components/AddToCartForm";
 import ProductGallery from "@/components/ProductGallery";
 import ProductReviews from "@/components/ProductReviews";
 import ProductCard from "@/components/ProductCard";
-
-const SITE_URL = "https://spinnerpinata.com";
+import { SITE_URL } from "@/lib/site";
 
 export function generateStaticParams() {
   return PRODUCTS.map((p) => ({ slug: p.slug }));
@@ -130,6 +129,11 @@ export default async function ProductPage({
                 Returns &amp; Guarantee policy
               </Link>{" "}
               for details.
+            </p>
+            <p>
+              <span className="font-semibold text-[var(--color-ink)]">Guarantee: </span>
+              If it doesn&apos;t spin, pull, or hold up the way it should, tell us — we
+              stand behind every build we ship.
             </p>
           </div>
         </div>

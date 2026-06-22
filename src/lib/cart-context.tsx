@@ -8,7 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { getProductBySlug } from "@/data/products";
+import { getProductBySlug, getCartThumbnail } from "@/data/products";
 
 export interface CartLine {
   slug: string;
@@ -113,7 +113,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             ...line,
             name: product.name,
             price: product.price,
-            image: product.image,
+            image: getCartThumbnail(product),
             swatch: product.swatch,
           };
         })

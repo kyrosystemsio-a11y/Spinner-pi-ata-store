@@ -3,10 +3,10 @@ import { SOCIAL_LINKS } from "@/data/social";
 
 const FOOTER_LINKS = [
   { href: "/shop", label: "Shop All" },
-  { href: "/custom-gallery", label: "Custom Gallery" },
+  { href: "/custom-gallery", label: "Custom Builds" },
   { href: "/our-story", label: "Our Story" },
   { href: "/instructions", label: "How It Works" },
-  { href: "/maps", label: "Shipping" },
+  { href: "/shipping", label: "Shipping" },
   { href: "/contact-us", label: "Contact Us" },
   { href: "/returns-policy", label: "Returns & Guarantee" },
   { href: "/privacy-policy", label: "Privacy Policy" },

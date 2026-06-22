@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bungee, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
+import { SITE_URL } from "@/lib/site";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -16,7 +17,6 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
 });
 
-const SITE_URL = "https://spinnerpinata.com";
 const SITE_TITLE = "Spinner Piñata | Handmade Spin & Pull Piñatas";
 const SITE_DESCRIPTION =
   "Reusable, handcrafted spin piñatas for birthdays, baptisms, and every fiesta. Pick your colors, pull the ribbons, and watch it spin.";

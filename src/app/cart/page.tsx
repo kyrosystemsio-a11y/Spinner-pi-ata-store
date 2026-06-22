@@ -1,11 +1,39 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 
 export default function CartPage() {
-  const { linesWithProduct, subtotal, updateQuantity, removeItem } = useCart();
+  const { lines, linesWithProduct, subtotal, updateQuantity, removeItem } =
+    useCart();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  async function handleCheckout() {
+    setIsCheckingOut(true);
+    setCheckoutError(null);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lines }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) {
+        setCheckoutError(
+          data.error ?? "Couldn't start checkout. Please try again."
+        );
+        setIsCheckingOut(false);
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      setCheckoutError("Couldn't start checkout. Please try again.");
+      setIsCheckingOut(false);
+    }
+  }
 
   if (linesWithProduct.length === 0) {
     return (
@@ -106,13 +134,22 @@ export default function CartPage() {
           <span>Subtotal</span>
           <span>${subtotal.toFixed(2)}</span>
         </div>
-        <p className="max-w-sm text-right text-sm text-black/60">
-          Checkout is coming soon — for now, reach out via{" "}
-          <Link href="/contact-us" className="underline">
-            Contact Us
-          </Link>{" "}
-          to complete your order.
+        <button
+          onClick={handleCheckout}
+          disabled={isCheckingOut}
+          className="w-full max-w-xs cursor-pointer rounded-full bg-[var(--color-midway)] px-7 py-4 text-center font-bold text-white transition-colors hover:bg-[var(--color-midway-light)] disabled:cursor-not-allowed disabled:opacity-60 sm:max-w-sm"
+        >
+          {isCheckingOut ? "Redirecting to checkout…" : "Checkout"}
+        </button>
+        <p className="max-w-sm text-right text-xs text-black/50">
+          14-day returns on ready-made orders · we&apos;ll always make it
+          right if something arrives damaged.
         </p>
+        {checkoutError && (
+          <p className="max-w-sm text-right text-sm text-red-600">
+            {checkoutError}
+          </p>
+        )}
       </div>
     </div>
   );

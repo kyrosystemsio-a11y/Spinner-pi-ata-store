@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next";
 import { PRODUCTS } from "@/data/products";
-
-const SITE_URL = "https://spinnerpinata.com";
+import { SITE_URL } from "@/lib/site";
 
 const STATIC_ROUTES = [
   { path: "/", changeFrequency: "weekly" as const, priority: 1 },
@@ -9,6 +8,7 @@ const STATIC_ROUTES = [
   { path: "/custom-gallery", changeFrequency: "monthly" as const, priority: 0.7 },
   { path: "/our-story", changeFrequency: "monthly" as const, priority: 0.5 },
   { path: "/instructions", changeFrequency: "monthly" as const, priority: 0.5 },
+  { path: "/shipping", changeFrequency: "monthly" as const, priority: 0.4 },
   { path: "/contact-us", changeFrequency: "monthly" as const, priority: 0.5 },
   { path: "/returns-policy", changeFrequency: "yearly" as const, priority: 0.3 },
   { path: "/privacy-policy", changeFrequency: "yearly" as const, priority: 0.3 },

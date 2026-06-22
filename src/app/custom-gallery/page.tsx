@@ -4,8 +4,8 @@ import { getProductsByCategory } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 
 export const metadata: Metadata = {
-  title: "Custom Gallery | Spinner Piñata",
-  description: "A look at our custom-built Spinner Piñatas — your colors, your theme.",
+  title: "Custom Builds | Spinner Piñata",
+  description: "Build your own Spinner Piñata — pick your colors and theme to get started.",
 };
 
 export default function CustomGalleryPage() {
@@ -14,7 +14,7 @@ export default function CustomGalleryPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
       <h1 className="font-display text-3xl text-[var(--color-midway)] sm:text-4xl">
-        Custom Gallery
+        Custom Builds
       </h1>
       <p className="mt-3 max-w-2xl text-black/70">
         Every custom build starts with your ribbon color and a photo of the
@@ -27,6 +27,8 @@ export default function CustomGalleryPage() {
           <ProductCard key={product.slug} product={product} />
         ))}
       </div>
+
+      {/* TODO(jay): once we have real customer photos of completed custom builds, add a true gallery section here. Do not fabricate. */}
 
       <div className="mt-10 rounded-xl bg-white p-6 shadow-sm">
         <h2 className="font-semibold text-[var(--color-midway)]">

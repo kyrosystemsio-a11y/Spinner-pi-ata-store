@@ -12,7 +12,7 @@ const REGIONS = [
   { name: "Custom Builds", time: "Add 2–3 days to the above for hand-built orders" },
 ];
 
-export default function MapsPage() {
+export default function ShippingPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
       <h1 className="font-display text-3xl text-[var(--color-midway)] sm:text-4xl">

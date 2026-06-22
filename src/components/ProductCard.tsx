@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/data/products";
 import PinataIcon from "@/components/PinataIcon";
+import { isVideoSrc, webmVariant } from "@/lib/media";
 
 export default function ProductCard({ product }: { product: Product }) {
   return (
@@ -14,13 +15,27 @@ export default function ProductCard({ product }: { product: Product }) {
         style={{ backgroundColor: product.swatch }}
       >
         {product.image ? (
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            sizes="(max-width: 768px) 50vw, 25vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
+          isVideoSrc(product.image) ? (
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              aria-label={product.name}
+            >
+              <source src={webmVariant(product.image)} type="video/webm" />
+              <source src={product.image} type="video/mp4" />
+            </video>
+          ) : (
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              sizes="(max-width: 768px) 50vw, 25vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          )
         ) : (
           <div className="flex h-full items-center justify-center p-8">
             <PinataIcon

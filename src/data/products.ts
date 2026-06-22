@@ -1,3 +1,5 @@
+import { isVideoSrc, posterVariant } from "@/lib/media";
+
 export type Category =
   | "custom"
   | "influencers"
@@ -74,7 +76,7 @@ export const PRODUCTS: Product[] = [
     name: "Custom Build — Spinata GLOW",
     price: 89.99,
     category: "custom",
-    image: "/products/custom-build-glow.gif",
+    image: "/products/custom-build-glow.mp4",
     swatch: "#3a0a5e",
     customizable: true,
     isAnimatedGlow: true,
@@ -144,6 +146,12 @@ export function getProductBySlug(slug: string): Product | undefined {
 export function getProductGallery(product: Product): string[] {
   if (product.gallery && product.gallery.length > 0) return product.gallery;
   return product.image ? [product.image] : [];
+}
+
+/** Small contexts (cart line, cart drawer) show a static frame instead of autoplaying video. */
+export function getCartThumbnail(product: Product): string | null {
+  if (!product.image) return null;
+  return isVideoSrc(product.image) ? posterVariant(product.image) : product.image;
 }
 
 export function getAverageRating(product: Product): number | null {
