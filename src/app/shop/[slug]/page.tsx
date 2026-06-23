@@ -6,12 +6,10 @@ import {
   getProductBySlug,
   CATEGORY_LABELS,
   getProductGallery,
-  getAverageRating,
   getRelatedProducts,
 } from "@/data/products";
 import AddToCartForm from "@/components/AddToCartForm";
 import ProductGallery from "@/components/ProductGallery";
-import ProductReviews from "@/components/ProductReviews";
 import ProductCard from "@/components/ProductCard";
 import BaptismUnravelHero from "@/components/BaptismUnravelHero";
 import { SITE_URL } from "@/lib/site";
@@ -45,8 +43,6 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const gallery = getProductGallery(product);
-  const averageRating = getAverageRating(product);
-  const reviews = product.reviews ?? [];
   const relatedProducts = getRelatedProducts(product);
 
   const jsonLd = {
@@ -63,35 +59,6 @@ export default async function ProductPage({
       availability: "https://schema.org/InStock",
       url: `${SITE_URL}/shop/${product.slug}`,
     },
-    ...(averageRating !== null
-      ? {
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: averageRating.toFixed(1),
-            reviewCount: reviews.length,
-          },
-        }
-      : {}),
-    ...(reviews.length > 0
-      ? {
-          review: reviews.map((review) => ({
-            "@type": "Review",
-            author: { "@type": "Person", name: review.author },
-            reviewBody: review.text,
-            ...(review.rating != null
-              ? {
-                  reviewRating: {
-                    "@type": "Rating",
-                    ratingValue: review.rating,
-                    bestRating: 5,
-                    worstRating: 1,
-                  },
-                }
-              : {}),
-            ...(review.date ? { datePublished: review.date } : {}),
-          })),
-        }
-      : {}),
   };
 
   const breadcrumbJsonLd = {
@@ -187,8 +154,6 @@ export default async function ProductPage({
           </div>
         </div>
       </div>
-
-      <ProductReviews reviews={reviews} averageRating={averageRating} />
 
       {relatedProducts.length > 0 && (
         <section className="mt-16 border-t border-black/10 pt-10">
