@@ -165,7 +165,7 @@ export default async function ProductPage({
           <div className="mt-2 flex flex-col gap-3 rounded-xl bg-white p-5 text-sm text-black/75 shadow-sm">
             <p>
               <span className="font-semibold text-[var(--color-ink)]">Shipping: </span>
-              Ships nationwide, hand-packed in 2–3 business days
+              Ships in 1–2 business days
               {product.customizable ? " (allow 2–3 extra days for custom builds)" : ""}.
             </p>
             <p>

@@ -145,7 +145,7 @@ export const PRODUCTS: Product[] = [
 
   // Specialty
   { slug: "glow", name: "Spinata GLOW", price: 79.99, category: "glow", image: null, swatch: "#3a0a5e", isAnimatedGlow: true, description: "Now with mini LED lights woven through every rip cord — spins and glows in the dark." },
-  { slug: "baptism", name: "Spinata BAPTISM (\"Bolo\")", price: 67.99, category: "baptism", image: "/products/baptism.jpg", swatch: "#7fc3e8", description: "A one-of-a-kind baptism edition, hand-finished in soft blues and whites for the occasion." },
+  { slug: "baptism", name: "Spinata BAPTISM (\"Bolo\")", price: 67.99, category: "baptism", image: "/products/baptism.jpg", swatch: "#7fc3e8", description: "A one-of-a-kind baptism edition, hand-finished in gold cross stickers available in ivory or white for the occasion." },
   { slug: "luis-loera-collab", name: "Luis LOERA Collaboration", price: 67.99, category: "influencers", image: null, swatch: "#e8722e", description: "Our influencer collaboration build with Luis Loera — limited run." },
   { slug: "t-shirt", name: "Spinner Pinata T-Shirt", price: 20.00, category: "merch", image: "/products/t-shirt.jpg", swatch: "#18101f", description: "Soft cotton tee with the Spinner Pinata logo. Wear the tornado." },
 ];
