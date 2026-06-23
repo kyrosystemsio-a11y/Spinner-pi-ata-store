@@ -1,9 +1,12 @@
 "use client";
 
-import { useMemo, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useEffect, useMemo, useRef } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { smoothstep, seededRandom } from "@/lib/three-easing";
+import { WoodCageFrame } from "@/lib/wood-cage-frame";
+import { createMedallionTexture, type MedallionVariant } from "@/lib/medallion-texture";
+import { createMoneyAtlasTexture } from "@/lib/money-atlas-texture";
 
 // Colors below are median pixel samples taken directly from the real
 // product photo (public/products/baptism.jpg), then lightened ~35% toward
@@ -13,7 +16,7 @@ const RIBBON_IVORY = "#c0c0c2";
 // Reused from the site's existing brand tokens (globals.css) — close match
 // to the embroidered gold ring on the cross medallions in the real photo.
 const MEDALLION_GOLD = "#e7b740";
-const MEDALLION_INK = "#18101f";
+const BAND_PAPER_BLUE = "#2c5fa8";
 
 // TODO(shape-match): the real photo only shows the wrapped front of the
 // piece at one angle — no side/back/turntable reference exists yet, so the
@@ -21,78 +24,32 @@ const MEDALLION_INK = "#18101f";
 // multi-angle photo or video confirms the true silhouette.
 const TUBE_RADIUS = 0.85;
 const TUBE_HALF_HEIGHT = 1.2;
-const FRAME_PLATFORM_THICKNESS = 0.08;
 
-// Same wood tone and five-pole cage layout as the homepage hero's
-// CageFrame (PinataHeroCanvas.tsx), reused verbatim per request so both
-// product frames read as the same physical build.
-const WOOD_COLOR = "#c9974c";
-const FRAME_DOWEL_COUNT = 5;
-const FRAME_DOWEL_RADIUS = 0.055;
-const FRAME_PLATFORM_RADIUS = TUBE_RADIUS * 0.92;
+// Scroll choreography phases: rest (idle) -> unravel (bands peel) -> burst
+// (money erupts) -> settle (camera/CTA).
+const REST_END = 0.15;
+const UNRAVEL_END = 0.55;
+const BURST_END = 0.85;
 
 // Counted directly off the real photo's visible ribbon coils.
 const BAND_COUNT = 13;
-const MEDALLION_CHANCE = 0.4;
 
-// Tier colors sampled from a real licensed prop-money reference photo
-// (paper tone per denomination), then lightened ~35% the same way as the
-// ribbon color above. COMPLIANCE: these stay flat color tiers — no
-// portraits, seals, or replicated bill artwork — and every bill below
-// carries a high-contrast corner tab, mirroring how real licensed prop
-// money marks itself as non-spendable. Even with a real currency photo
-// available as a reference, nothing here approaches counterfeit fidelity.
-const MONEY_TIERS = ["#aca79d", "#cbbab8", "#bdbdbf"];
-const PROP_TAB_COLORS = ["#e8722e", "#1da7d3"];
+// Prop bill tier mix (~50% / 30% / 20%), matches the atlas's tier order.
+const TIER_WEIGHTS = [0.5, 0.3, 0.2];
 const MONEY_COUNT = 90;
 
 function smoothInOut(p: number, start: number, peak: number, end: number) {
   return smoothstep(start, peak, p) * (1 - smoothstep(peak, end, p));
 }
 
-// The wooden pole frame the ribbon is wound around — same three-platform,
-// five-dowel cage design as the homepage hero's CageFrame, scaled to this
-// product's tube dimensions. Always present; the ribbon bands hide most of
-// it until they peel away.
-function WoodFrame() {
-  const platformYs = [TUBE_HALF_HEIGHT, 0, -TUBE_HALF_HEIGHT];
-  const doweAngles = Array.from(
-    { length: FRAME_DOWEL_COUNT },
-    (_, i) => (i / FRAME_DOWEL_COUNT) * Math.PI * 2 + Math.PI / 4
-  );
-
-  return (
-    <group>
-      {platformYs.map((y, i) => (
-        <mesh key={i} position={[0, y, 0]}>
-          <cylinderGeometry
-            args={[FRAME_PLATFORM_RADIUS, FRAME_PLATFORM_RADIUS, FRAME_PLATFORM_THICKNESS, 24]}
-          />
-          <meshStandardMaterial color={WOOD_COLOR} roughness={0.85} />
-        </mesh>
-      ))}
-      {doweAngles.map((angle, i) => (
-        <mesh
-          key={i}
-          position={[
-            Math.sin(angle) * (TUBE_RADIUS - 0.07),
-            0,
-            Math.cos(angle) * (TUBE_RADIUS - 0.07),
-          ]}
-        >
-          <cylinderGeometry
-            args={[
-              FRAME_DOWEL_RADIUS,
-              FRAME_DOWEL_RADIUS,
-              TUBE_HALF_HEIGHT * 2 + FRAME_PLATFORM_THICKNESS,
-              12,
-            ]}
-          />
-          <meshStandardMaterial color={WOOD_COLOR} roughness={0.85} />
-        </mesh>
-      ))}
-    </group>
-  );
+function pickTierIndex(seed: number) {
+  const r = seededRandom(seed);
+  let acc = 0;
+  for (let i = 0; i < TIER_WEIGHTS.length; i++) {
+    acc += TIER_WEIGHTS[i];
+    if (r < acc) return i;
+  }
+  return TIER_WEIGHTS.length - 1;
 }
 
 interface BandDatum {
@@ -102,30 +59,59 @@ interface BandDatum {
   fallDistance: number;
   spin: number;
   drift: number;
-  hasMedallion: boolean;
-  medallionAngle: number;
+  medallions: { angle: number; variant: MedallionVariant; jitter: number }[];
 }
 
 // The wound ivory ribbon, modelled as stacked open-ended cylinder shells
-// that peel outward as the user scrolls — same mechanic as the homepage
-// piñata hero's RibbonBands, applied to this product's coil pattern.
+// that peel outward as the user scrolls. Cross medallions are placed in a
+// 1-2-1-2 rhythm (single centered, then a side-by-side pair, alternating),
+// gold variant reserved for the top and bottom rows.
 function RibbonBands({ progress }: { progress: { current: number } }) {
+  const { gl } = useThree();
+
+  const medallionTextures = useMemo(() => {
+    const standard = createMedallionTexture("standard");
+    const gold = createMedallionTexture("gold");
+    const maxAniso = gl.capabilities.getMaxAnisotropy();
+    standard.anisotropy = maxAniso;
+    gold.anisotropy = maxAniso;
+    return { standard, gold };
+  }, [gl]);
+
+  useEffect(() => {
+    return () => {
+      medallionTextures.standard.dispose();
+      medallionTextures.gold.dispose();
+    };
+  }, [medallionTextures]);
+
   const bands = useMemo<BandDatum[]>(() => {
-    const totalHeight = TUBE_HALF_HEIGHT * 2 - FRAME_PLATFORM_THICKNESS;
+    const totalHeight = TUBE_HALF_HEIGHT * 2;
     const bandHeight = totalHeight / BAND_COUNT;
-    return Array.from({ length: BAND_COUNT }).map((_, i) => ({
-      y: TUBE_HALF_HEIGHT - FRAME_PLATFORM_THICKNESS - bandHeight * (i + 0.5),
-      height: bandHeight * 0.96,
-      unravelAt: i / BAND_COUNT,
-      fallDistance: 1.4 + seededRandom(i + 0.12) * 1.1,
-      spin: (seededRandom(i + 0.46) - 0.5) * 6,
-      drift: 0.6 + seededRandom(i + 0.63) * 1,
-      hasMedallion: seededRandom(i + 0.27) < MEDALLION_CHANCE,
-      medallionAngle: seededRandom(i + 0.71) * Math.PI * 2,
-    }));
+    return Array.from({ length: BAND_COUNT }).map((_, i) => {
+      const isTopOrBottom = i === 0 || i === BAND_COUNT - 1;
+      const variant: MedallionVariant = isTopOrBottom ? "gold" : "standard";
+      const medallions =
+        i % 2 === 0
+          ? [{ angle: 0, variant, jitter: (seededRandom(i + 0.05) - 0.5) * (Math.PI / 90) }]
+          : [
+              { angle: 0.32, variant, jitter: (seededRandom(i + 0.15) - 0.5) * (Math.PI / 90) },
+              { angle: -0.32, variant, jitter: (seededRandom(i + 0.25) - 0.5) * (Math.PI / 90) },
+            ];
+      return {
+        y: TUBE_HALF_HEIGHT - bandHeight * (i + 0.5),
+        height: bandHeight * 0.96,
+        unravelAt: REST_END + (i / BAND_COUNT) * (UNRAVEL_END - REST_END),
+        fallDistance: 1.4 + seededRandom(i + 0.12) * 1.1,
+        spin: (seededRandom(i + 0.46) - 0.5) * 6,
+        drift: 0.6 + seededRandom(i + 0.63) * 1,
+        medallions,
+      };
+    });
   }, []);
 
   const refs = useRef<(THREE.Group | null)[]>([]);
+  const localUnravelSpan = (UNRAVEL_END - REST_END) / BAND_COUNT;
 
   useFrame((state) => {
     const p = progress.current;
@@ -133,7 +119,7 @@ function RibbonBands({ progress }: { progress: { current: number } }) {
     bands.forEach((band, i) => {
       const group = refs.current[i];
       if (!group) return;
-      const localT = smoothstep(band.unravelAt, band.unravelAt + 1 / BAND_COUNT, p);
+      const localT = smoothstep(band.unravelAt, band.unravelAt + localUnravelSpan, p);
 
       const outward = localT * band.drift;
       group.position.set(
@@ -165,29 +151,25 @@ function RibbonBands({ progress }: { progress: { current: number } }) {
               side={THREE.DoubleSide}
             />
           </mesh>
-          {band.hasMedallion && (
-            <group
-              position={[
-                Math.sin(band.medallionAngle) * (TUBE_RADIUS + 0.04),
-                0,
-                Math.cos(band.medallionAngle) * (TUBE_RADIUS + 0.04),
-              ]}
-              rotation={[0, -band.medallionAngle, 0]}
-            >
-              <mesh>
-                <torusGeometry args={[0.07, 0.012, 8, 20]} />
-                <meshStandardMaterial color={MEDALLION_GOLD} roughness={0.4} metalness={0.3} />
+          {band.medallions.map((medallion, mi) => {
+            const angle = medallion.angle + medallion.jitter;
+            const texture =
+              medallion.variant === "gold" ? medallionTextures.gold : medallionTextures.standard;
+            return (
+              <mesh
+                key={mi}
+                position={[
+                  Math.sin(angle) * (TUBE_RADIUS + 0.035),
+                  0,
+                  Math.cos(angle) * (TUBE_RADIUS + 0.035),
+                ]}
+                rotation={[0, -angle, 0]}
+              >
+                <planeGeometry args={[0.22, 0.22]} />
+                <meshStandardMaterial map={texture} transparent roughness={0.5} side={THREE.DoubleSide} />
               </mesh>
-              <mesh>
-                <boxGeometry args={[0.09, 0.014, 0.005]} />
-                <meshStandardMaterial color={MEDALLION_INK} />
-              </mesh>
-              <mesh>
-                <boxGeometry args={[0.014, 0.09, 0.005]} />
-                <meshStandardMaterial color={MEDALLION_INK} />
-              </mesh>
-            </group>
-          )}
+            );
+          })}
         </group>
       ))}
     </group>
@@ -196,6 +178,7 @@ function RibbonBands({ progress }: { progress: { current: number } }) {
 
 // The loose ribbon tail that swings outward as it's pulled, matching the
 // real photo's loose tail hanging off the lower-right of the wrapped front.
+// Grows during the unravel phase, then tucks away before the money burst.
 function PullTail({ progress }: { progress: { current: number } }) {
   const group = useRef<THREE.Group>(null);
 
@@ -203,7 +186,7 @@ function PullTail({ progress }: { progress: { current: number } }) {
     if (!group.current) return;
     const p = progress.current;
     const t = state.clock.elapsedTime;
-    const grow = smoothstep(0, 0.4, p) * (1 - smoothstep(0.8, 1, p));
+    const grow = smoothstep(0.1, 0.5, p) * (1 - smoothstep(0.55, 0.65, p));
     const length = 0.3 + grow * 2.6;
     const swing = grow * 1.1;
 
@@ -230,79 +213,151 @@ function PullTail({ progress }: { progress: { current: number } }) {
   );
 }
 
-interface MoneyDatum {
+// Thin "paper band" stacks tucked near the tube's top, visible during rest
+// and early unravel, fading out once the money burst begins.
+function MoneyStackBands({ progress }: { progress: { current: number } }) {
+  const refs = useRef<(THREE.Mesh | null)[]>([]);
+  const stacks = useMemo(
+    () =>
+      Array.from({ length: 4 }).map((_, i) => ({
+        angle: (i / 4) * Math.PI * 2 + Math.PI / 4,
+      })),
+    []
+  );
+
+  useFrame(() => {
+    const p = progress.current;
+    const opacity = 1 - smoothstep(UNRAVEL_END, BURST_END - 0.3, p);
+    refs.current.forEach((mesh) => {
+      if (!mesh) return;
+      const material = mesh.material as THREE.MeshStandardMaterial;
+      material.opacity = opacity;
+    });
+  });
+
+  return (
+    <group position={[0, TUBE_HALF_HEIGHT * 0.55, 0]}>
+      {stacks.map((stack, i) => (
+        <mesh
+          key={i}
+          ref={(el) => (refs.current[i] = el)}
+          position={[Math.sin(stack.angle) * 0.18, 0, Math.cos(stack.angle) * 0.18]}
+          rotation={[0, -stack.angle, 0]}
+        >
+          <boxGeometry args={[0.27, 0.12, 0.22]} />
+          <meshStandardMaterial color={BAND_PAPER_BLUE} roughness={0.6} transparent />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+interface MoneyPieceDatum {
+  tierIndex: number;
   angle: number;
   outRadius: number;
   fireAt: number;
   fallSpeed: number;
-  color: string;
-  tabColor: string;
   spin: number;
   flutter: number;
 }
 
 // Prop bills raining out as the ribbon opens, building to a finale burst.
-// See the COMPLIANCE note above MONEY_TIERS — flat color tiers only, no
-// real bill artwork, each piece carries a bright non-spendable corner tab.
+// COMPLIANCE: see money-atlas-texture.ts — flat tier tints, no real bill
+// artwork, baked-in non-spendable corner tab per piece. Rendered via one
+// InstancedMesh per denomination tier (cut from ~90 individual meshes down
+// to 3 draw calls) sharing a single canvas atlas via cheap texture.clone()
+// UV-offset views rather than a custom per-instance-UV shader.
 function MoneyField({ progress }: { progress: { current: number } }) {
-  const pieces = useMemo<MoneyDatum[]>(
-    () =>
-      Array.from({ length: MONEY_COUNT }).map((_, i) => ({
+  const { gl } = useThree();
+
+  const atlas = useMemo(() => createMoneyAtlasTexture(), []);
+  const tierTextures = useMemo(() => {
+    const maxAniso = gl.capabilities.getMaxAnisotropy();
+    return Array.from({ length: atlas.tierCount }, (_, i) => {
+      const clone = atlas.texture.clone();
+      clone.repeat.set(1 / atlas.tierCount, 1);
+      clone.offset.set(i / atlas.tierCount, 0);
+      clone.anisotropy = maxAniso;
+      clone.needsUpdate = true;
+      return clone;
+    });
+  }, [atlas, gl]);
+
+  useEffect(() => {
+    return () => {
+      tierTextures.forEach((tex) => tex.dispose());
+      atlas.texture.dispose();
+    };
+  }, [tierTextures, atlas]);
+
+  const piecesByTier = useMemo(() => {
+    const groups: MoneyPieceDatum[][] = Array.from({ length: atlas.tierCount }, () => []);
+    for (let i = 0; i < MONEY_COUNT; i++) {
+      const tierIndex = pickTierIndex(i + 0.33);
+      groups[tierIndex].push({
+        tierIndex,
         angle: seededRandom(i + 0.21) * Math.PI * 2,
         outRadius: 0.3 + seededRandom(i + 0.77) * 1.6,
-        fireAt: 0.45 + seededRandom(i + 0.44) * 0.5,
+        fireAt: BURST_END - 0.3 + seededRandom(i + 0.44) * 0.3,
         fallSpeed: 1.4 + seededRandom(i + 0.61) * 1.8,
-        color: MONEY_TIERS[Math.floor(seededRandom(i + 0.33) * MONEY_TIERS.length)],
-        tabColor: PROP_TAB_COLORS[i % PROP_TAB_COLORS.length],
         spin: (seededRandom(i + 0.88) - 0.5) * 9,
         flutter: 0.5 + seededRandom(i + 0.55) * 1.5,
-      })),
-    []
-  );
+      });
+    }
+    return groups;
+  }, [atlas.tierCount]);
 
-  const refs = useRef<(THREE.Group | null)[]>([]);
+  const meshRefs = useRef<(THREE.InstancedMesh | null)[]>([]);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useFrame((state) => {
     const p = progress.current;
     const t = state.clock.elapsedTime;
-    pieces.forEach((piece, i) => {
-      const group = refs.current[i];
-      if (!group) return;
-      const localT = smoothstep(piece.fireAt, Math.min(1, piece.fireAt + 0.35), p);
-      const finale = smoothstep(0.85, 1, p);
-      const spread = localT * piece.outRadius * (1 + finale * 0.6);
-      const fall = localT * localT * piece.fallSpeed * 3.2;
+    const finale = smoothstep(0.85, 1, p);
 
-      group.position.set(
-        Math.sin(piece.angle) * spread + Math.sin(t * piece.flutter + i) * 0.15,
-        TUBE_HALF_HEIGHT * 0.6 - fall,
-        Math.cos(piece.angle) * spread
-      );
-      group.rotation.x = fall * piece.spin * 0.3 + Math.sin(t * piece.flutter) * 0.4;
-      group.rotation.z = fall * piece.spin * 0.2;
+    piecesByTier.forEach((pieces, tierIndex) => {
+      const mesh = meshRefs.current[tierIndex];
+      if (!mesh) return;
+      pieces.forEach((piece, i) => {
+        const localT = smoothstep(piece.fireAt, Math.min(1, piece.fireAt + 0.35), p);
+        const spread = localT * piece.outRadius * (1 + finale * 0.6);
+        const fall = localT * localT * piece.fallSpeed * 3.2;
 
-      const opacity = localT <= 0 ? 0 : 1 - smoothstep(0.92, 1, localT) * (1 - finale);
-      group.children.forEach((child) => {
-        const mesh = child as THREE.Mesh;
-        const material = mesh.material as THREE.MeshStandardMaterial;
-        material.opacity = opacity;
+        dummy.position.set(
+          Math.sin(piece.angle) * spread + Math.sin(t * piece.flutter + i) * 0.15,
+          TUBE_HALF_HEIGHT * 0.6 - fall,
+          Math.cos(piece.angle) * spread
+        );
+        dummy.rotation.set(
+          fall * piece.spin * 0.3 + Math.sin(t * piece.flutter) * 0.4,
+          0,
+          fall * piece.spin * 0.2
+        );
+        dummy.scale.setScalar(localT <= 0 ? 0 : 1);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
       });
+      mesh.instanceMatrix.needsUpdate = true;
     });
   });
 
   return (
     <group>
-      {pieces.map((piece, i) => (
-        <group key={i} ref={(el) => (refs.current[i] = el)}>
-          <mesh>
-            <boxGeometry args={[0.24, 0.1, 0.004]} />
-            <meshStandardMaterial color={piece.color} transparent roughness={0.6} />
-          </mesh>
-          <mesh position={[0.09, 0.035, 0.003]}>
-            <boxGeometry args={[0.05, 0.03, 0.002]} />
-            <meshStandardMaterial color={piece.tabColor} transparent roughness={0.5} />
-          </mesh>
-        </group>
+      {piecesByTier.map((pieces, tierIndex) => (
+        <instancedMesh
+          key={tierIndex}
+          ref={(el) => (meshRefs.current[tierIndex] = el)}
+          args={[undefined, undefined, pieces.length]}
+        >
+          <planeGeometry args={[0.26, 0.11]} />
+          <meshStandardMaterial
+            map={tierTextures[tierIndex]}
+            transparent
+            roughness={0.6}
+            side={THREE.DoubleSide}
+          />
+        </instancedMesh>
       ))}
     </group>
   );
@@ -314,13 +369,14 @@ function BaptismBody({ progress }: { progress: { current: number } }) {
   useFrame((state) => {
     if (!group.current) return;
     const p = progress.current;
-    group.current.rotation.y = state.clock.elapsedTime * 0.12 + p * Math.PI * 1.2;
+    group.current.rotation.y = state.clock.elapsedTime * 0.035 + p * Math.PI * 1.2;
     group.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.06 - p * 0.4;
   });
 
   return (
     <group ref={group}>
-      <WoodFrame />
+      <WoodCageFrame radius={TUBE_RADIUS} halfHeight={TUBE_HALF_HEIGHT} />
+      <MoneyStackBands progress={progress} />
       <RibbonBands progress={progress} />
       <PullTail progress={progress} />
       <MoneyField progress={progress} />
@@ -333,9 +389,9 @@ function BaptismBody({ progress }: { progress: { current: number } }) {
 function CameraRig({ progress }: { progress: { current: number } }) {
   useFrame((state) => {
     const p = progress.current;
-    const dolly = smoothInOut(p, 0.7, 0.9, 1) + smoothstep(0.9, 1, p) * 1.4;
+    const dolly = smoothInOut(p, 0.55, 0.75, 0.95) + smoothstep(0.95, 1, p) * 1.4;
     state.camera.position.z = 6.6 + dolly * 2.2;
-    state.camera.position.y = 0.1 - smoothstep(0.6, 1, p) * 0.4;
+    state.camera.position.y = 0.1 - smoothstep(0.55, 1, p) * 0.4;
     state.camera.lookAt(0, -0.2, 0);
   });
 

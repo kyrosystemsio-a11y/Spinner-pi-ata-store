@@ -4,8 +4,8 @@ import { useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { smoothstep, seededRandom } from "@/lib/three-easing";
+import { WoodCageFrame, CAGE_PLATFORM_THICKNESS } from "@/lib/wood-cage-frame";
 
-const WOOD_COLOR = "#c9974c";
 const ROPE_COLOR = "#e3d3b6";
 // TODO(color-match): swap these for the real ribbon hex values once the
 // client's reference photos are in — currently approximate brand colors.
@@ -16,11 +16,7 @@ const CANDY_COLORS = ["#ff3b3b", "#ffd23f", "#3fa9f5", "#7ed957", "#ff7fb7", "#f
 
 const CAGE_RADIUS = 0.78;
 const CAGE_HALF_HEIGHT = 1.85;
-const PLATFORM_RADIUS = CAGE_RADIUS * 0.92;
-const PLATFORM_THICKNESS = 0.12;
-const DOWEL_RADIUS = 0.055;
-// Five sticks/ribbons total, matching the real product (was 4).
-const DOWEL_COUNT = 5;
+const PLATFORM_THICKNESS = CAGE_PLATFORM_THICKNESS;
 
 const BAND_COUNT = 16;
 const LED_RING_COUNT = 5;
@@ -28,44 +24,14 @@ const LEDS_PER_RING = 10;
 const CONFETTI_COUNT = 40;
 const CANDY_COUNT = 70;
 
-// The wooden lantern cage (platforms + corner dowels) the ribbon is wound
-// around. It's always present — the ribbon bands simply hide it until they
-// unravel away.
-function CageFrame() {
-  const platformYs = [CAGE_HALF_HEIGHT, 0, -CAGE_HALF_HEIGHT];
-  const dowelAngles = Array.from(
-    { length: DOWEL_COUNT },
-    (_, i) => (i / DOWEL_COUNT) * Math.PI * 2 + Math.PI / 4
-  );
-
+// The rope the cage hangs from — not part of the shared WoodCageFrame since
+// the baptism spinner has no hanging rope.
+function HangRope() {
   return (
-    <group>
-      {platformYs.map((y, i) => (
-        <mesh key={i} position={[0, y, 0]}>
-          <cylinderGeometry args={[PLATFORM_RADIUS, PLATFORM_RADIUS, PLATFORM_THICKNESS, 24]} />
-          <meshStandardMaterial color={WOOD_COLOR} roughness={0.85} />
-        </mesh>
-      ))}
-      {dowelAngles.map((angle, i) => (
-        <mesh
-          key={i}
-          position={[
-            Math.sin(angle) * (CAGE_RADIUS - 0.07),
-            0,
-            Math.cos(angle) * (CAGE_RADIUS - 0.07),
-          ]}
-        >
-          <cylinderGeometry
-            args={[DOWEL_RADIUS, DOWEL_RADIUS, CAGE_HALF_HEIGHT * 2 + PLATFORM_THICKNESS, 12]}
-          />
-          <meshStandardMaterial color={WOOD_COLOR} roughness={0.85} />
-        </mesh>
-      ))}
-      <mesh position={[0, CAGE_HALF_HEIGHT + 0.9, 0]}>
-        <cylinderGeometry args={[0.025, 0.025, 1.8, 8]} />
-        <meshStandardMaterial color={ROPE_COLOR} roughness={0.9} />
-      </mesh>
-    </group>
+    <mesh position={[0, CAGE_HALF_HEIGHT + 0.9, 0]}>
+      <cylinderGeometry args={[0.025, 0.025, 1.8, 8]} />
+      <meshStandardMaterial color={ROPE_COLOR} roughness={0.9} />
+    </mesh>
   );
 }
 
@@ -380,7 +346,8 @@ function PinataBody({ progress }: { progress: { current: number } }) {
 
   return (
     <group ref={group}>
-      <CageFrame />
+      <WoodCageFrame radius={CAGE_RADIUS} halfHeight={CAGE_HALF_HEIGHT} />
+      <HangRope />
       <GlowLights progress={progress} />
       <RibbonBands progress={progress} />
       <PullTail progress={progress} />
