@@ -5,7 +5,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { smoothstep, seededRandom } from "@/lib/three-easing";
 import { WoodCageFrame } from "@/lib/wood-cage-frame";
-import { createMedallionTexture, type MedallionVariant } from "@/lib/medallion-texture";
+import { createMedallionVariationTextures, MEDALLION_VARIATION_COUNT } from "@/lib/medallion-texture";
 import { createMoneyAtlasTexture } from "@/lib/money-atlas-texture";
 
 // Colors below are median pixel samples taken directly from the real
@@ -52,6 +52,12 @@ function pickTierIndex(seed: number) {
   return TIER_WEIGHTS.length - 1;
 }
 
+interface MedallionDatum {
+  angle: number;
+  variation: number;
+  jitter: number;
+}
+
 interface BandDatum {
   y: number;
   height: number;
@@ -59,45 +65,61 @@ interface BandDatum {
   fallDistance: number;
   spin: number;
   drift: number;
-  medallions: { angle: number; variant: MedallionVariant; jitter: number }[];
+  medallions: MedallionDatum[];
+}
+
+// Nine medallion variations are mapped onto nine evenly-spaced rows down the
+// wrapped tube (row r -> variation V_r), each row stamped on all four faces
+// (0/90/180/270 degrees) -> 36 decals total. Rows are pinned to the nearest
+// existing ribbon band so each decal is a child of that band's group and
+// inherits its peel/fall/spin animation directly, instead of animating
+// separately and risking a detached floater once its band lifts off.
+const MEDALLION_ROW_COUNT = MEDALLION_VARIATION_COUNT;
+const MEDALLION_FACE_ANGLES = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+
+function bandIndexForRow(row: number) {
+  return Math.round((row / (MEDALLION_ROW_COUNT - 1)) * (BAND_COUNT - 1));
 }
 
 // The wound ivory ribbon, modelled as stacked open-ended cylinder shells
-// that peel outward as the user scrolls. Cross medallions are placed in a
-// 1-2-1-2 rhythm (single centered, then a side-by-side pair, alternating),
-// gold variant reserved for the top and bottom rows.
+// that peel outward as the user scrolls.
 function RibbonBands({ progress }: { progress: { current: number } }) {
   const { gl } = useThree();
 
   const medallionTextures = useMemo(() => {
-    const standard = createMedallionTexture("standard");
-    const gold = createMedallionTexture("gold");
+    const textures = createMedallionVariationTextures();
     const maxAniso = gl.capabilities.getMaxAnisotropy();
-    standard.anisotropy = maxAniso;
-    gold.anisotropy = maxAniso;
-    return { standard, gold };
+    textures.forEach((texture) => {
+      texture.anisotropy = maxAniso;
+    });
+    return textures;
   }, [gl]);
 
   useEffect(() => {
     return () => {
-      medallionTextures.standard.dispose();
-      medallionTextures.gold.dispose();
+      medallionTextures.forEach((texture) => texture.dispose());
     };
   }, [medallionTextures]);
 
   const bands = useMemo<BandDatum[]>(() => {
     const totalHeight = TUBE_HALF_HEIGHT * 2;
     const bandHeight = totalHeight / BAND_COUNT;
+    const rowByBandIndex = new Map<number, number>();
+    for (let row = 0; row < MEDALLION_ROW_COUNT; row++) {
+      rowByBandIndex.set(bandIndexForRow(row), row);
+    }
     return Array.from({ length: BAND_COUNT }).map((_, i) => {
-      const isTopOrBottom = i === 0 || i === BAND_COUNT - 1;
-      const variant: MedallionVariant = isTopOrBottom ? "gold" : "standard";
-      const medallions =
-        i % 2 === 0
-          ? [{ angle: 0, variant, jitter: (seededRandom(i + 0.05) - 0.5) * (Math.PI / 90) }]
-          : [
-              { angle: 0.32, variant, jitter: (seededRandom(i + 0.15) - 0.5) * (Math.PI / 90) },
-              { angle: -0.32, variant, jitter: (seededRandom(i + 0.25) - 0.5) * (Math.PI / 90) },
-            ];
+      const row = rowByBandIndex.get(i);
+      const medallions: MedallionDatum[] =
+        row === undefined
+          ? []
+          : MEDALLION_FACE_ANGLES.map((angle, faceIndex) => ({
+              angle,
+              variation: row + 1,
+              // +/-2 degrees: Math.PI/45 rad spans 4 degrees, halved by the
+              // [-0.5, 0.5] seededRandom offset.
+              jitter: (seededRandom(i * 4 + faceIndex + 0.05) - 0.5) * (Math.PI / 45),
+            }));
       return {
         y: TUBE_HALF_HEIGHT - bandHeight * (i + 0.5),
         height: bandHeight * 0.96,
@@ -153,8 +175,7 @@ function RibbonBands({ progress }: { progress: { current: number } }) {
           </mesh>
           {band.medallions.map((medallion, mi) => {
             const angle = medallion.angle + medallion.jitter;
-            const texture =
-              medallion.variant === "gold" ? medallionTextures.gold : medallionTextures.standard;
+            const texture = medallionTextures[medallion.variation - 1];
             return (
               <mesh
                 key={mi}
