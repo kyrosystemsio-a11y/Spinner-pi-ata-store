@@ -13,6 +13,7 @@ import AddToCartForm from "@/components/AddToCartForm";
 import ProductGallery from "@/components/ProductGallery";
 import ProductReviews from "@/components/ProductReviews";
 import ProductCard from "@/components/ProductCard";
+import BaptismUnravelHero from "@/components/BaptismUnravelHero";
 import { SITE_URL } from "@/lib/site";
 
 export function generateStaticParams() {
@@ -115,7 +116,9 @@ export default async function ProductPage({
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <>
+      {product.slug === "baptism" && <BaptismUnravelHero />}
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -199,6 +202,7 @@ export default async function ProductPage({
           </div>
         </section>
       )}
-    </div>
+      </div>
+    </>
   );
 }

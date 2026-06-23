@@ -3,6 +3,7 @@
 import { useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { smoothstep, seededRandom } from "@/lib/three-easing";
 
 const WOOD_COLOR = "#c9974c";
 const ROPE_COLOR = "#e3d3b6";
@@ -26,18 +27,6 @@ const LED_RING_COUNT = 5;
 const LEDS_PER_RING = 10;
 const CONFETTI_COUNT = 40;
 const CANDY_COUNT = 70;
-
-function smoothstep(edge0: number, edge1: number, x: number) {
-  const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
-  return t * t * (3 - 2 * t);
-}
-
-// Deterministic, seeded pseudo-random in [0, 1) so per-instance variation
-// stays pure across renders instead of relying on Math.random().
-function seededRandom(seed: number) {
-  const x = Math.sin(seed * 12.9898) * 43758.5453;
-  return x - Math.floor(x);
-}
 
 // The wooden lantern cage (platforms + corner dowels) the ribbon is wound
 // around. It's always present — the ribbon bands simply hide it until they
