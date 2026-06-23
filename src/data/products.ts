@@ -125,19 +125,6 @@ export const PRODUCTS: Product[] = [
     image: "/products/purple.jpg",
     swatch: "#210f46",
     description: "Royal purple — our signature midway color.",
-    // Verbatim text from confirmed Amazon listing reviews. Reviewer names, star
-    // ratings, and dates are not publicly exposed by Amazon, so they're omitted
-    // rather than invented (see Review type — rating/date are optional for this reason).
-    reviews: [
-      { author: "Verified Amazon Customer", text: "Product arrived ahead of scheduled due to great customer service. Product worked perfectly" },
-      { author: "Verified Amazon Customer", text: "Best item I ever bought, saved money and time. Don't have to worry about cleaning up and able to reuse it so many time. Totally recommend\u{1F44D}" },
-      { author: "Verified Amazon Customer", text: "I recently ordered the spin piñata from Amazon, and I'm thrilled with my purchase. It's exactly what I expected - lightweight, and easy to handle. I can't wait to use it at our upcoming party! I'll be sure to update my review afterward with how it performed in action. So far, it's looking like a fantastic addition to our festivities." },
-      { author: "Verified Amazon Customer", text: "Used it for a party, worked amazing! Love how it's reusable too!" },
-      { author: "Verified Amazon Customer", text: "This is the best idea ever !!!!!! No more using a stick just pull the string and the treats come right out and it's reusable love it !!!!!" },
-      { author: "Verified Amazon Customer", text: "I like how this spinner piñata works amazing and what I like the most, is that you can reuse it, over and over again; I'm pretty sure is proudly made in USA. No more stick injuries." },
-      { author: "Verified Amazon Customer", text: "The kids love this ❤️ no more stick injuries and the best part is it's reusable I definitely recommend it!!!!!" },
-      { author: "Verified Amazon Customer", text: "This was perfect for the baptism I just threw ! Candies and money flying everywhere. It's much more convenient than throwing chunk at such small spots." },
-    ],
   },
   { slug: "spinata-lime", name: "Spinata Lime", price: 59.99, category: "colors", image: "/products/lime.jpg", swatch: "#b19b45", description: "Electric lime for a high-energy party." },
   { slug: "spinata-light-blue", name: "Spinata Light Blue", price: 59.99, category: "colors", image: "/products/light-blue.jpg", swatch: "#a7b9cd", description: "Soft sky blue, calm and breezy." },
