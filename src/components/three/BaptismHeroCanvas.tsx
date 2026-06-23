@@ -10,7 +10,6 @@ import { smoothstep, seededRandom } from "@/lib/three-easing";
 // white to compensate for that photo's ambient shadow under this scene's
 // brighter studio lighting — not guessed.
 const RIBBON_IVORY = "#c0c0c2";
-const KRAFT_CARDBOARD = "#ac8d74";
 // Reused from the site's existing brand tokens (globals.css) — close match
 // to the embroidered gold ring on the cross medallions in the real photo.
 const MEDALLION_GOLD = "#e7b740";
@@ -22,7 +21,15 @@ const MEDALLION_INK = "#18101f";
 // multi-angle photo or video confirms the true silhouette.
 const TUBE_RADIUS = 0.85;
 const TUBE_HALF_HEIGHT = 1.2;
-const KRAFT_RIM_HEIGHT = 0.08;
+const FRAME_PLATFORM_THICKNESS = 0.08;
+
+// Same wood tone and five-pole cage layout as the homepage hero's
+// CageFrame (PinataHeroCanvas.tsx), reused verbatim per request so both
+// product frames read as the same physical build.
+const WOOD_COLOR = "#c9974c";
+const FRAME_DOWEL_COUNT = 5;
+const FRAME_DOWEL_RADIUS = 0.055;
+const FRAME_PLATFORM_RADIUS = TUBE_RADIUS * 0.92;
 
 // Counted directly off the real photo's visible ribbon coils.
 const BAND_COUNT = 13;
@@ -43,24 +50,47 @@ function smoothInOut(p: number, start: number, peak: number, end: number) {
   return smoothstep(start, peak, p) * (1 - smoothstep(peak, end, p));
 }
 
-// The bare kraft-cardboard tube the ribbon is wound around. Always present
-// — the ribbon bands simply hide most of it until they peel away.
-// TODO(shape-match): no bare/unwrapped reference photo exists yet, so the
-// inner structure (solid tube vs. visible struts, any printed graphics) is
-// approximated as a plain open-ended kraft cylinder.
-function BareFrame() {
+// The wooden pole frame the ribbon is wound around — same three-platform,
+// five-dowel cage design as the homepage hero's CageFrame, scaled to this
+// product's tube dimensions. Always present; the ribbon bands hide most of
+// it until they peel away.
+function WoodFrame() {
+  const platformYs = [TUBE_HALF_HEIGHT, 0, -TUBE_HALF_HEIGHT];
+  const doweAngles = Array.from(
+    { length: FRAME_DOWEL_COUNT },
+    (_, i) => (i / FRAME_DOWEL_COUNT) * Math.PI * 2 + Math.PI / 4
+  );
+
   return (
     <group>
-      <mesh position={[0, 0, 0]}>
-        <cylinderGeometry args={[TUBE_RADIUS, TUBE_RADIUS, TUBE_HALF_HEIGHT * 2, 32, 1, true]} />
-        <meshStandardMaterial color={KRAFT_CARDBOARD} roughness={0.95} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[0, TUBE_HALF_HEIGHT - KRAFT_RIM_HEIGHT / 2, 0]}>
-        <cylinderGeometry
-          args={[TUBE_RADIUS + 0.02, TUBE_RADIUS + 0.02, KRAFT_RIM_HEIGHT, 32, 1, true]}
-        />
-        <meshStandardMaterial color={KRAFT_CARDBOARD} roughness={0.95} side={THREE.DoubleSide} />
-      </mesh>
+      {platformYs.map((y, i) => (
+        <mesh key={i} position={[0, y, 0]}>
+          <cylinderGeometry
+            args={[FRAME_PLATFORM_RADIUS, FRAME_PLATFORM_RADIUS, FRAME_PLATFORM_THICKNESS, 24]}
+          />
+          <meshStandardMaterial color={WOOD_COLOR} roughness={0.85} />
+        </mesh>
+      ))}
+      {doweAngles.map((angle, i) => (
+        <mesh
+          key={i}
+          position={[
+            Math.sin(angle) * (TUBE_RADIUS - 0.07),
+            0,
+            Math.cos(angle) * (TUBE_RADIUS - 0.07),
+          ]}
+        >
+          <cylinderGeometry
+            args={[
+              FRAME_DOWEL_RADIUS,
+              FRAME_DOWEL_RADIUS,
+              TUBE_HALF_HEIGHT * 2 + FRAME_PLATFORM_THICKNESS,
+              12,
+            ]}
+          />
+          <meshStandardMaterial color={WOOD_COLOR} roughness={0.85} />
+        </mesh>
+      ))}
     </group>
   );
 }
@@ -81,10 +111,10 @@ interface BandDatum {
 // piñata hero's RibbonBands, applied to this product's coil pattern.
 function RibbonBands({ progress }: { progress: { current: number } }) {
   const bands = useMemo<BandDatum[]>(() => {
-    const totalHeight = TUBE_HALF_HEIGHT * 2 - KRAFT_RIM_HEIGHT;
+    const totalHeight = TUBE_HALF_HEIGHT * 2 - FRAME_PLATFORM_THICKNESS;
     const bandHeight = totalHeight / BAND_COUNT;
     return Array.from({ length: BAND_COUNT }).map((_, i) => ({
-      y: TUBE_HALF_HEIGHT - KRAFT_RIM_HEIGHT - bandHeight * (i + 0.5),
+      y: TUBE_HALF_HEIGHT - FRAME_PLATFORM_THICKNESS - bandHeight * (i + 0.5),
       height: bandHeight * 0.96,
       unravelAt: i / BAND_COUNT,
       fallDistance: 1.4 + seededRandom(i + 0.12) * 1.1,
@@ -290,7 +320,7 @@ function BaptismBody({ progress }: { progress: { current: number } }) {
 
   return (
     <group ref={group}>
-      <BareFrame />
+      <WoodFrame />
       <RibbonBands progress={progress} />
       <PullTail progress={progress} />
       <MoneyField progress={progress} />
