@@ -6,10 +6,12 @@ import {
   getProductBySlug,
   CATEGORY_LABELS,
   getProductGallery,
+  getAverageRating,
   getRelatedProducts,
 } from "@/data/products";
 import AddToCartForm from "@/components/AddToCartForm";
 import ProductGallery from "@/components/ProductGallery";
+import ProductReviews from "@/components/ProductReviews";
 import ProductCard from "@/components/ProductCard";
 import BaptismUnravelHero from "@/components/BaptismUnravelHero";
 import { SITE_URL } from "@/lib/site";
@@ -43,6 +45,8 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const gallery = getProductGallery(product);
+  const averageRating = getAverageRating(product);
+  const reviews = product.reviews ?? [];
   const relatedProducts = getRelatedProducts(product);
 
   const jsonLd = {
@@ -59,6 +63,35 @@ export default async function ProductPage({
       availability: "https://schema.org/InStock",
       url: `${SITE_URL}/shop/${product.slug}`,
     },
+    ...(averageRating !== null
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: averageRating.toFixed(1),
+            reviewCount: reviews.length,
+          },
+        }
+      : {}),
+    ...(reviews.length > 0
+      ? {
+          review: reviews.map((review) => ({
+            "@type": "Review",
+            author: { "@type": "Person", name: review.author },
+            reviewBody: review.text,
+            ...(review.rating != null
+              ? {
+                  reviewRating: {
+                    "@type": "Rating",
+                    ratingValue: review.rating,
+                    bestRating: 5,
+                    worstRating: 1,
+                  },
+                }
+              : {}),
+            ...(review.date ? { datePublished: review.date } : {}),
+          })),
+        }
+      : {}),
   };
 
   const breadcrumbJsonLd = {
@@ -167,6 +200,50 @@ export default async function ProductPage({
           </div>
         </section>
       )}
+
+      <section className="mt-16 border-t border-black/10 pt-10">
+        <h2 className="font-display text-2xl text-[var(--color-midway)]">
+          Frequently Asked Questions
+        </h2>
+        <div className="mt-6 flex flex-col gap-4">
+          {[
+            {
+              q: "How is a Spinner Piñata different from a regular one?",
+              a: "You don't smash it. Give it a spin and pull a ribbon — each pull releases a little candy without breaking the body, so it's ready for the next party right away.",
+            },
+            {
+              q: "How long does shipping take?",
+              a: "Ready-made colors and designs ship in 2–3 business days. Custom builds need 2–3 extra days to hand-build before they ship. We ship nationwide.",
+            },
+            {
+              q: "Can I pick my own ribbon color?",
+              a: "Yes — every custom build lets you choose from 17 ribbon colors and upload a photo of the theme or character you want.",
+            },
+            {
+              q: "What if I'm not happy with my order?",
+              a: "Tell us. Ready-made items can be returned within 14 days, and we'll always make it right if something arrives damaged. See our Returns & Guarantee policy for details.",
+            },
+            {
+              q: "Is it really reusable?",
+              a: "Yes — once it's empty, just restock the candy through the top opening and it's ready to spin again at the next party.",
+            },
+          ].map((item) => (
+            <details
+              key={item.q}
+              className="group rounded-xl bg-[var(--color-kraft)] p-5 open:bg-white open:shadow-sm"
+            >
+              <summary className="cursor-pointer list-none font-semibold text-[var(--color-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-midway)]">
+                {item.q}
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-black/75">
+                {item.a}
+              </p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <ProductReviews reviews={reviews} averageRating={averageRating} />
       </div>
     </>
   );
