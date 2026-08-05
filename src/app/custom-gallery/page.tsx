@@ -10,8 +10,8 @@ import CustomBuildGallery, { type PastBuild } from "@/components/CustomBuildGall
 const PAST_BUILDS: PastBuild[] = [];
 
 export const metadata: Metadata = {
-  title: "Custom Builds | Spinner Piñata",
-  description: "Build your own Spinner Piñata — pick your colors and theme to get started.",
+  title: "Custom Builds | Spinner Piñata®",
+  description: "Build your own Spinner Piñata® — pick your colors and theme to get started.",
   alternates: { canonical: "/custom-gallery" },
 };
 

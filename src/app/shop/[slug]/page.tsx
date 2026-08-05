@@ -29,7 +29,7 @@ export async function generateMetadata({
   const product = getProductBySlug(slug);
   if (!product) return {};
   return {
-    title: `${product.name} | Spinner Piñata`,
+    title: `${product.name} | Spinner Piñata®`,
     description: product.description,
     alternates: { canonical: `/shop/${product.slug}` },
   };
@@ -208,12 +208,12 @@ export default async function ProductPage({
         <div className="mt-6 flex flex-col gap-4">
           {[
             {
-              q: "How is a Spinner Piñata different from a regular one?",
+              q: "How is a Spinner Piñata® different from a regular one?",
               a: "You don't smash it. Give it a spin and pull a ribbon — each pull releases a little candy without breaking the body, so it's ready for the next party right away.",
             },
             {
               q: "How long does shipping take?",
-              a: "Ready-made colors and designs ship in 2–3 business days. Custom builds need 2–3 extra days to hand-build before they ship. We ship nationwide.",
+              a: "Ready-made colors and designs ship in 1–2 business days. Custom builds need 2–3 extra days to hand-build before they ship. We ship nationwide.",
             },
             {
               q: "Can I pick my own ribbon color?",
@@ -225,7 +225,7 @@ export default async function ProductPage({
             },
             {
               q: "Is it really reusable?",
-              a: "Yes — once it's empty, just restock the candy through the top opening and it's ready to spin again at the next party.",
+              a: "Yes — once it's empty, just reattach the ribbon to the top opening, restock it with candy, and it's ready to spin again at the next party.",
             },
           ].map((item) => (
             <details

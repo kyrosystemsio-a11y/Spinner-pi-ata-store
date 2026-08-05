@@ -4,7 +4,7 @@ import { stripe } from "@/lib/stripe";
 import ClearCartOnMount from "@/components/ClearCartOnMount";
 
 export const metadata: Metadata = {
-  title: "Order Confirmed | Spinner Piñata",
+  title: "Order Confirmed | Spinner Piñata®",
   alternates: { canonical: "/checkout/success" },
   robots: { index: false, follow: false },
 };

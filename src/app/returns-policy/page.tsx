@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Returns & Guarantee | Spinner Piñata",
-  description: "Our returns, exchanges, and satisfaction guarantee for Spinner Piñata orders.",
+  title: "Returns & Guarantee | Spinner Piñata®",
+  description: "Our returns, exchanges, and satisfaction guarantee for Spinner Piñata® orders.",
   alternates: { canonical: "/returns-policy" },
 };
 
@@ -16,7 +16,7 @@ export default function ReturnsPolicyPage() {
 
       <div className="mt-8 flex flex-col gap-6 text-sm leading-relaxed text-black/75">
         <p>
-          Every Spinner Piñata is hand-built, and we want you happy with
+          Every Spinner Piñata® is hand-built, and we want you happy with
           yours. If something arrives damaged or isn&apos;t what you
           ordered, contact us within 7 days of delivery and we&apos;ll send
           a replacement or refund — no return shipping required.
@@ -50,7 +50,7 @@ export default function ReturnsPolicyPage() {
             Our guarantee
           </p>
           <p className="mt-1">
-            If your Spinner Piñata doesn&apos;t spin, pull, or hold up the
+            If your Spinner Piñata® doesn&apos;t spin, pull, or hold up the
             way it should, tell us. We stand behind every build we ship.
           </p>
         </div>

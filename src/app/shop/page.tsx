@@ -6,9 +6,9 @@ import CategoryFilter from "@/components/CategoryFilter";
 import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Shop All Spin Piñatas | Spinner Piñata",
+  title: "Shop All Spin Piñatas | Spinner Piñata®",
   description:
-    "Browse the full Spinner Piñata catalog — colors, designs, Halloween, glow, baptism, and custom builds.",
+    "Browse the full Spinner Piñata® catalog — colors, designs, Halloween, glow, baptism, and custom builds.",
   alternates: { canonical: "/shop" },
 };
 
@@ -65,7 +65,7 @@ export default async function ShopPage({
         Shop All Piñatas
       </h1>
       <p className="mt-2 max-w-2xl text-black/70">
-        Every Spinner Piñata is hand-built to be pulled, spun, and reused
+        Every Spinner Piñata® is hand-built to be pulled, spun, and reused
         party after party.
       </p>
 

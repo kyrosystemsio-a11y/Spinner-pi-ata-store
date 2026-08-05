@@ -19,7 +19,7 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
 });
 
-const SITE_TITLE = "Spinner Piñata | Handmade Spin & Pull Piñatas";
+const SITE_TITLE = "Spinner Piñata® | Handmade Spin & Pull Piñatas";
 const SITE_DESCRIPTION =
   "Reusable, handcrafted spin piñatas for birthdays, baptisms, and every fiesta. Pick your colors, pull the ribbons, and watch it spin.";
 
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     url: SITE_URL,
-    siteName: "Spinner Piñata",
+    siteName: "Spinner Piñata®",
     images: ["/icon.png"],
     locale: "en_US",
     type: "website",
@@ -57,7 +57,7 @@ export default function RootLayout({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Spinner Piñata",
+    name: "Spinner Piñata®",
     url: SITE_URL,
     logo: `${SITE_URL}/icon.png`,
     ...(sameAs.length > 0 ? { sameAs } : {}),

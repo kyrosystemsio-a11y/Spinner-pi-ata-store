@@ -168,7 +168,7 @@ export default function Home() {
               },
               {
                 title: "Patent Pending",
-                copy: "Our spin design is one-of-a-kind — there's no piñata quite like a Spinner Piñata.",
+                copy: "Our spin design is one-of-a-kind — there's no piñata quite like a Spinner Piñata®.",
               },
             ].map((item) => (
               <div key={item.title} className="flex flex-col items-center gap-3">
@@ -282,12 +282,12 @@ export default function Home() {
           <div className="mt-8 flex flex-col gap-4">
             {[
               {
-                q: "How is a Spinner Piñata different from a regular one?",
+                q: "How is a Spinner Piñata® different from a regular one?",
                 a: "You don't smash it. Give it a spin and pull a ribbon — each pull releases a little candy without breaking the body, so it's ready for the next party right away.",
               },
               {
                 q: "How long does shipping take?",
-                a: "Ready-made colors and designs ship in 2–3 business days. Custom builds need 2–3 extra days to hand-build before they ship. We ship nationwide.",
+                a: "Ready-made colors and designs ship in 1–2 business days. Custom builds need 2–3 extra days to hand-build before they ship. We ship nationwide.",
               },
               {
                 q: "Can I pick my own ribbon color?",
@@ -299,7 +299,7 @@ export default function Home() {
               },
               {
                 q: "Is it really reusable?",
-                a: "Yes — once it's empty, just restock the candy through the top opening and it's ready to spin again at the next party.",
+                a: "Yes — once it's empty, just reattach the ribbon to the top opening, restock it with candy, and it's ready to spin again at the next party.",
               },
             ].map((item) => (
               <details

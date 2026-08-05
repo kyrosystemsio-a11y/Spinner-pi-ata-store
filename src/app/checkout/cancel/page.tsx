@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Checkout Canceled | Spinner Piñata",
+  title: "Checkout Canceled | Spinner Piñata®",
   alternates: { canonical: "/checkout/cancel" },
   robots: { index: false, follow: false },
 };
